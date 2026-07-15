@@ -7,10 +7,10 @@
 - [ ] Onboarding-flow
 
 ## Fase 2: Kernfuncties
-- [ ] ETF Check™ (ETF-analyse en screening)
-- [ ] Portfolio Checker™ (portefeuille-analyse)
-- [ ] Compounding Simulator™ (rendementsberekening)
-- [ ] Doelplanner™ (financiële doelen)
+- [x] ETF Check™ (ETF-analyse en screening)
+- [x] Portfolio Checker™ (portefeuille-analyse)
+- [x] Compounding Simulator™ (rendementsberekening)
+- [x] Doelplanner™ (financiële doelen)
 
 ## Fase 3: Premium & Betalingen
 - [ ] Stripe-integratie

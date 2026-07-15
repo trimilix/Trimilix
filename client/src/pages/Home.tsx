@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { startLogin } from "@/const";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, TrendingUp, Wallet, Target, Plus } from "lucide-react";
@@ -7,6 +8,7 @@ import { trpc } from "@/lib/trpc";
 
 export default function Home() {
   const { user, isAuthenticated, loading } = useAuth();
+  const [, navigate] = useLocation();
   const { data: portfolios, isLoading: portfoliosLoading } = trpc.portfolio.list.useQuery(undefined, { enabled: isAuthenticated });
   const { data: subscription } = trpc.subscription.get.useQuery(undefined, { enabled: isAuthenticated });
 
@@ -116,7 +118,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-slate-600 mb-4">Analyseer ETF's op kosten, risico en rendement</p>
-              <Button size="sm" variant="outline" className="w-full">
+              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate("/etf-check")}>
                 Starten
               </Button>
             </CardContent>
@@ -131,7 +133,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-slate-600 mb-4">Bereken je vermogen over tijd met rente-op-rente</p>
-              <Button size="sm" variant="outline" className="w-full">
+              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate("/compounding-simulator")}>
                 Simuleren
               </Button>
             </CardContent>
@@ -146,8 +148,23 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-slate-600 mb-4">Controleer je portefeuille op diversificatie</p>
-              <Button size="sm" variant="outline" className="w-full">
+              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate("/portfolio-checker")}>
                 Analyseren
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Target className="w-5 h-5 text-red-600" />
+                Doelplanner™
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-600 mb-4">Stel doelen en volg je voortgang</p>
+              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate("/goal-planner")}>
+                Plannen
               </Button>
             </CardContent>
           </Card>
