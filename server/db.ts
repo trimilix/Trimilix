@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, portfolios, holdings, goals, subscriptions, etfs, InsertPortfolio, InsertHolding, InsertGoal, InsertSubscription, InsertEtf } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -96,12 +96,23 @@ export async function getUserPortfolios(userId: number) {
   return db.select().from(portfolios).where(eq(portfolios.userId, userId));
 }
 
-export async function getPortfolioWithHoldings(portfolioId: number) {
+export async function getPortfolioWithHoldings(portfolioId: number, userId: number) {
   const db = await getDb();
   if (!db) return null;
-  const portfolio = await db.select().from(portfolios).where(eq(portfolios.id, portfolioId)).limit(1);
+
+  const portfolio = await db
+    .select()
+    .from(portfolios)
+    .where(and(eq(portfolios.id, portfolioId), eq(portfolios.userId, userId)))
+    .limit(1);
+
   if (portfolio.length === 0) return null;
-  const portfolioHoldings = await db.select().from(holdings).where(eq(holdings.portfolioId, portfolioId));
+
+  const portfolioHoldings = await db
+    .select()
+    .from(holdings)
+    .where(eq(holdings.portfolioId, portfolioId));
+
   return { ...portfolio[0], holdings: portfolioHoldings };
 }
 

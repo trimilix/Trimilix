@@ -1,15 +1,13 @@
-import { eq } from "drizzle-orm";
-import { portfolios, holdings, etfs } from "../drizzle/schema";
 import { getDb, getPortfolioWithHoldings, getEtfBySymbol } from "./db";
 
-export async function analyzePortfolio(portfolioId: number) {
+export async function analyzePortfolio(portfolioId: number, userId: number) {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot analyze portfolio: database not available");
     return null;
   }
 
-  const portfolioWithHoldings = await getPortfolioWithHoldings(portfolioId);
+  const portfolioWithHoldings = await getPortfolioWithHoldings(portfolioId, userId);
   if (!portfolioWithHoldings) {
     return null;
   }

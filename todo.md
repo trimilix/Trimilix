@@ -39,7 +39,7 @@
 - [x] **Database Seeding:** Vul de `etfs` tabel met een beperkte set populaire ETF's. (Geverifieerd: 5 ETF's geseed)
 - [x] **Beveiliging:** Implementeer inputvalidatie met Zod voor alle tRPC-procedures (voor procedures met input). Procedures zonder input vereisen geen Zod-validatie. (Geverifieerd)
 - [ ] **Code Kwaliteit:** Zorg voor unit tests voor alle kritieke bedrijfslogica (bijv. compounding berekeningen).
-- [ ] **Architectuur:** Documenteer de architectuur in `/docs/architecture.md` (gebruik Mermaid of D2).
+- [x] **Architectuur:** Documenteer de architectuur in `/docs/architecture.md` (gebruik Mermaid of D2).
 - [ ] **Observability:** Implementeer gestructureerde logging voor backend-acties.
 - [ ] **Data Integriteit:** Zorg voor transacties en idempotentie voor financiële operaties.
 
@@ -58,3 +58,11 @@
 - [x] **Portfolio Checker™ Backend Logica:** Run een schone typecheck/start-validatie voor portfolio-routes en leg vast dat de `portfolio.analyze` procedure zonder serverfouten laadt.
 - [x] Vergelijk alternatieve marktdata-aanbieders voor actuele en real-time aandelen- en ETF-koersen, inclusief Europese dekking, WebSockets, limieten, commerciële weergaverechten en prijs.
 - [x] Formuleer een MVP-aanbeveling en groeipad waarbij real-time koersen later enkel voor betalende gebruikers worden geactiveerd.
+- [x] Audit de huidige code, documentatie, scripts en configuratie tegenover de nieuwe CTO-, security-, performance-, monitoring- en schaalbaarheidsrichtlijnen.
+- [x] Breid `ENGINEERING_HANDBOOK.md` uit met blijvende standaarden voor architectuur, OWASP-security, secrets, performance, observability, kostenbeheer, omgevingen, back-ups, documentatie en sprintreviews.
+- [x] Maak of actualiseer `docs/architecture.md` met systeemcontext, componenten, datastromen, trust boundaries, schaalstrategie en deploymentomgevingen.
+- [x] Leg een provider-onafhankelijk marktdata-contract, cachingstrategie, failoverbeleid en premium real-time activeringsmodel vast.
+- [x] Voeg reproduceerbare kwaliteitscontroles toe voor tests, typecheck, dependency audit en secret-scanning zonder productiegegevens bloot te stellen.
+- [x] Documenteer monitoring-SLI’s voor uptime, responstijd, fouten, server- en databasebelasting, API-gebruik, cache-efficiëntie en providerkosten.
+- [x] Leg back-up- en herstelprincipes vast voor database, broncode, configuratie, documentatie en secrets, met duidelijke platformbeperkingen.
+- [x] Maak een herbruikbaar CTO-sprintevaluatiesjabloon en lever een eerste sprintaudit met risico’s, technische schuld, tests en aanbevelingen.

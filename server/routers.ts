@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import { adminProcedure, publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription, getEtfBySymbol, createEtf, listEtfs, getDb } from "./db";
 import { analyzePortfolio } from "./portfolioAnalysis";
 import { etfs } from "../drizzle/schema";
@@ -25,8 +25,8 @@ export const appRouter = router({
     list: protectedProcedure.query(({ ctx }) =>
       getUserPortfolios(ctx.user.id)
     ),
-    get: protectedProcedure.input(z.object({ id: z.number() })).query(({ input }) =>
-      getPortfolioWithHoldings(input.id)
+    get: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(({ ctx, input }) =>
+      getPortfolioWithHoldings(input.id, ctx.user.id)
     ),
     create: protectedProcedure.input(z.object({
       name: z.string().min(1, "Naam is verplicht").max(255, "Naam is te lang"),
@@ -35,8 +35,8 @@ export const appRouter = router({
     })).mutation(({ ctx, input }) =>
       createPortfolio(ctx.user.id, input)
     ),
-    analyze: protectedProcedure.input(z.object({ portfolioId: z.number() })).query(({ input }) =>
-      analyzePortfolio(input.portfolioId)
+    analyze: protectedProcedure.input(z.object({ portfolioId: z.number().int().positive() })).query(({ ctx, input }) =>
+      analyzePortfolio(input.portfolioId, ctx.user.id)
     ),
   }),
 
@@ -59,7 +59,7 @@ export const appRouter = router({
     get: protectedProcedure.input(z.object({ symbol: z.string() })).query(({ input }) =>
       getEtfBySymbol(input.symbol)
     ),
-    create: protectedProcedure.input(z.object({
+    create: adminProcedure.input(z.object({
       symbol: z.string().max(10),
       name: z.string().max(255),
       isin: z.string().max(12).optional(),
@@ -70,7 +70,7 @@ export const appRouter = router({
     })).mutation(({ input }) =>
       createEtf(input)
     ),
-    count: protectedProcedure.query(async ({ ctx }) => {
+    count: protectedProcedure.query(async () => {
       const db = await getDb();
       if (!db) return { count: 0 };
       const result = await db.select({ count: count() }).from(etfs);
