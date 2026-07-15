@@ -2,7 +2,9 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
-import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription } from "./db";
+import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription, getEtfBySymbol, createEtf, listEtfs, getDb } from "./db";
+import { etfs } from "../drizzle/schema";
+import { count } from "drizzle-orm";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -44,6 +46,32 @@ export const appRouter = router({
     get: protectedProcedure.query(({ ctx }) =>
       getUserSubscription(ctx.user.id)
     ),
+  }),
+
+  etf: router({
+    list: protectedProcedure.query(() =>
+      listEtfs()
+    ),
+    get: protectedProcedure.input(z.object({ symbol: z.string() })).query(({ input }) =>
+      getEtfBySymbol(input.symbol)
+    ),
+    create: protectedProcedure.input(z.object({
+      symbol: z.string().max(10),
+      name: z.string().max(255),
+      isin: z.string().max(12).optional(),
+      ter: z.number().int().optional(),
+      currency: z.string().max(3),
+      assetClass: z.string().max(50).optional(),
+      region: z.string().max(50).optional(),
+    })).mutation(({ input }) =>
+      createEtf(input)
+    ),
+    count: protectedProcedure.query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) return { count: 0 };
+      const result = await db.select({ count: count() }).from(etfs);
+      return result[0];
+    }),
   }),
 });
 

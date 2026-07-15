@@ -3,53 +3,48 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
+import { Search, TrendingUp, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
-// Mock ETF data - in production, dit zou van een API komen
-const mockETFs = [
-  {
-    ticker: "VWRL",
-    name: "Vanguard FTSE All-World UCITS ETF",
-    ter: 0.22,
-    aum: 15200000000,
-    replication: "Physical",
-    region: "Global",
-    risk: 5,
-  },
-  {
-    ticker: "IWDA",
-    name: "iShares Core MSCI World UCITS ETF",
-    ter: 0.20,
-    aum: 85000000000,
-    replication: "Physical",
-    region: "Global",
-    risk: 5,
-  },
-  {
-    ticker: "VUSA",
-    name: "Vanguard S&P 500 UCITS ETF",
-    ter: 0.08,
-    aum: 28000000000,
-    replication: "Physical",
-    region: "USA",
-    risk: 5,
-  },
-];
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function ETFCheck() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedETF, setSelectedETF] = useState<typeof mockETFs[0] | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
-  const filteredETFs = mockETFs.filter(
+  const { data: etfs, isLoading: isLoadingEtfs, error: etfsError } = trpc.etf.list.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: selectedETF, isLoading: isLoadingSelectedEtf, error: selectedEtfError } = trpc.etf.get.useQuery({ symbol: selectedSymbol! }, { enabled: isAuthenticated && !!selectedSymbol });
+
+  const filteredETFs = etfs?.filter(
     (etf) =>
-      etf.ticker.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      etf.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
       etf.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
 
   const handleAddToPortfolio = () => {
-    toast.success(`${selectedETF?.ticker} toegevoegd aan portefeuille`);
+    if (selectedETF) {
+      // TODO: Implement actual add to portfolio logic via tRPC mutation
+      toast.success(`${selectedETF.symbol} toegevoegd aan portefeuille (mock)`);
+    }
   };
+
+  if (isLoadingEtfs) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-8 h-8" />
+      </div>
+    );
+  }
+
+  if (etfsError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-600">
+        <AlertCircle className="w-6 h-6 mr-2" />
+        Fout bij laden ETF's: {etfsError.message}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -96,20 +91,26 @@ export default function ETFCheck() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {filteredETFs.map((etf) => (
-                    <button
-                      key={etf.ticker}
-                      onClick={() => setSelectedETF(etf)}
-                      className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                        selectedETF?.ticker === etf.ticker
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-slate-200 hover:border-slate-300"
-                      }`}
-                    >
-                      <div className="font-semibold text-sm">{etf.ticker}</div>
-                      <div className="text-xs text-slate-600 truncate">{etf.name}</div>
-                    </button>
-                  ))}
+                  {filteredETFs.length > 0 ? (
+                    filteredETFs.map((etf) => (
+                      <button
+                        key={etf.symbol}
+                        onClick={() => setSelectedSymbol(etf.symbol)}
+                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                          selectedSymbol === etf.symbol
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-slate-200 hover:border-slate-300"
+                        }`}
+                      >
+                        <div className="font-semibold text-sm">{etf.symbol}</div>
+                        <div className="text-xs text-slate-600 truncate">{etf.name}</div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center text-slate-500 py-4">
+                      Geen ETF\'s gevonden die overeenkomen met uw zoekterm.
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -117,10 +118,24 @@ export default function ETFCheck() {
 
           {/* ETF Details */}
           <div className="lg:col-span-2">
-            {selectedETF ? (
+            {isLoadingSelectedEtf ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Loader2 className="animate-spin w-6 h-6" />
+                  <p className="text-slate-600 mt-4">Laden ETF details...</p>
+                </CardContent>
+              </Card>
+            ) : selectedEtfError ? (
+              <Card>
+                <CardContent className="py-12 text-center text-red-600">
+                  <AlertCircle className="w-6 h-6 mx-auto mb-4" />
+                  Fout bij laden details: {selectedEtfError.message}
+                </CardContent>
+              </Card>
+            ) : selectedETF ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>{selectedETF.ticker}</CardTitle>
+                  <CardTitle>{selectedETF.symbol}</CardTitle>
                   <CardDescription>{selectedETF.name}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -128,43 +143,40 @@ export default function ETFCheck() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-slate-50 rounded-lg">
                       <div className="text-sm text-slate-600 mb-1">Totale Kosten (TER)</div>
-                      <div className="text-2xl font-bold text-blue-600">{selectedETF.ter}%</div>
+                      <div className="text-2xl font-bold text-blue-600">{selectedETF.ter ? (selectedETF.ter / 100).toFixed(2) : 'N/A'}%</div>
                       <div className="text-xs text-slate-500 mt-2">
-                        {selectedETF.ter < 0.25 ? (
+                        {selectedETF.ter && selectedETF.ter < 25 ? (
                           <span className="flex items-center gap-1 text-green-600">
                             <CheckCircle className="w-3 h-3" />
                             Laag
                           </span>
-                        ) : (
+                        ) : selectedETF.ter ? (
                           <span className="flex items-center gap-1 text-orange-600">
                             <AlertCircle className="w-3 h-3" />
                             Gemiddeld
                           </span>
+                        ) : (
+                          <span className="text-slate-500">Onbekend</span>
                         )}
                       </div>
                     </div>
 
                     <div className="p-4 bg-slate-50 rounded-lg">
-                      <div className="text-sm text-slate-600 mb-1">Vermogen (AUM)</div>
-                      <div className="text-2xl font-bold">
-                        €{(selectedETF.aum / 1000000000).toFixed(1)}B
-                      </div>
-                      <div className="text-xs text-slate-500 mt-2">Groot en stabiel</div>
+                      <div className="text-sm text-slate-600 mb-1">Valuta</div>
+                      <div className="text-2xl font-bold">{selectedETF.currency}</div>
+                      <div className="text-xs text-slate-500 mt-2">Handelsvaluta</div>
                     </div>
 
                     <div className="p-4 bg-slate-50 rounded-lg">
-                      <div className="text-sm text-slate-600 mb-1">Replicatie</div>
-                      <div className="text-lg font-bold">{selectedETF.replication}</div>
-                      <div className="text-xs text-slate-500 mt-2">Volgt index exact</div>
+                      <div className="text-sm text-slate-600 mb-1">Asset Klasse</div>
+                      <div className="text-lg font-bold">{selectedETF.assetClass || 'N/A'}</div>
+                      <div className="text-xs text-slate-500 mt-2">Type belegging</div>
                     </div>
 
                     <div className="p-4 bg-slate-50 rounded-lg">
-                      <div className="text-sm text-slate-600 mb-1">Risico</div>
-                      <div className="text-lg font-bold flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-orange-500" />
-                        {selectedETF.risk}/10
-                      </div>
-                      <div className="text-xs text-slate-500 mt-2">Matig tot hoog</div>
+                      <div className="text-sm text-slate-600 mb-1">Regio</div>
+                      <div className="text-lg font-bold">{selectedETF.region || 'N/A'}</div>
+                      <div className="text-xs text-slate-500 mt-2">Geografische focus</div>
                     </div>
                   </div>
 
@@ -185,6 +197,14 @@ export default function ETFCheck() {
                   <Button onClick={handleAddToPortfolio} className="w-full">
                     Toevoegen aan portefeuille
                   </Button>
+                </CardContent>
+              </Card>
+            ) : etfs && etfs.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <AlertCircle className="w-12 h-12 mx-auto text-orange-400 mb-4" />
+                  <p className="text-slate-600">Geen ETF's beschikbaar in de database.</p>
+                  <p className="text-sm text-slate-500">Neem contact op met support als dit een fout is.</p>
                 </CardContent>
               </Card>
             ) : (

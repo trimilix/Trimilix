@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, portfolios, holdings, goals, subscriptions, InsertPortfolio, InsertHolding, InsertGoal, InsertSubscription } from "../drizzle/schema";
+import { InsertUser, users, portfolios, holdings, goals, subscriptions, etfs, InsertPortfolio, InsertHolding, InsertGoal, InsertSubscription, InsertEtf } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -136,4 +136,33 @@ export async function upsertSubscription(userId: number, data: Partial<InsertSub
   } else {
     await db.insert(subscriptions).values({ userId, ...data });
   }
+}
+
+export async function getEtfBySymbol(symbol: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get ETF: database not available");
+    return undefined;
+  }
+  const result = await db.select().from(etfs).where(eq(etfs.symbol, symbol)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createEtf(etf: InsertEtf) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create ETF: database not available");
+    return undefined;
+  }
+  const result = await db.insert(etfs).values(etf);
+  return result;
+}
+
+export async function listEtfs() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot list ETFs: database not available");
+    return [];
+  }
+  return db.select().from(etfs);
 }

@@ -95,3 +95,19 @@ export const subscriptions = mysqlTable("subscriptions", {
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+export const etfs = mysqlTable("etfs", {
+  id: int("id").autoincrement().primaryKey(),
+  symbol: varchar("symbol", { length: 10 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  isin: varchar("isin", { length: 12 }).unique(),
+  ter: int("ter"), // Total Expense Ratio in basis points (e.g., 20 for 0.20%)
+  currency: varchar("currency", { length: 3 }).notNull(),
+  assetClass: varchar("assetClass", { length: 50 }),
+  region: varchar("region", { length: 50 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Etf = typeof etfs.$inferSelect;
+export type InsertEtf = typeof etfs.$inferInsert;

@@ -5,6 +5,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+
 import ETFCheck from "./pages/ETFCheck";
 import PortfolioChecker from "./pages/PortfolioChecker";
 import CompoundingSimulator from "./pages/CompoundingSimulator";
@@ -20,6 +21,7 @@ function Router() {
       <Route path={"/compounding-simulator"} component={CompoundingSimulator} />
       <Route path={"/goal-planner"} component={GoalPlanner} />
       <Route path={"/404"} component={NotFound} />
+
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
