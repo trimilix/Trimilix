@@ -22,6 +22,13 @@
       "when": 1784146361684,
       "tag": "0002_cooing_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1784150429120,
+      "tag": "0003_useful_baron_strucker",
+      "breakpoints": true
     }
   ]
 }

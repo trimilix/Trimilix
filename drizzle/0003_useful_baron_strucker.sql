@@ -1,0 +1,1 @@
+ALTER TABLE `etfs` ADD `riskScore` int DEFAULT 3 NOT NULL;

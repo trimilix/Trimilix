@@ -18,6 +18,7 @@ async function seed() {
       currency: "EUR",
       assetClass: "Equity",
       region: "Global",
+      riskScore: 4,
     },
     {
       symbol: "IWDA",
@@ -27,6 +28,7 @@ async function seed() {
       currency: "EUR",
       assetClass: "Equity",
       region: "Global Developed",
+      riskScore: 4,
     },
     {
       symbol: "VUSA",
@@ -36,6 +38,7 @@ async function seed() {
       currency: "USD",
       assetClass: "Equity",
       region: "USA",
+      riskScore: 4,
     },
     {
       symbol: "EMIM",
@@ -45,6 +48,7 @@ async function seed() {
       currency: "USD",
       assetClass: "Equity",
       region: "Emerging Markets",
+      riskScore: 5,
     },
     {
       symbol: "AGGH",
@@ -54,6 +58,7 @@ async function seed() {
       currency: "EUR",
       assetClass: "Fixed Income",
       region: "Global",
+      riskScore: 2,
     },
   ];
 

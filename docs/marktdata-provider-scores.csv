@@ -1,0 +1,9 @@
+provider,weighted_score_out_of_5,eu_etf_coverage,commercial_display_clarity,mvp_cost_accessibility,eu_realtime_upgrade_path,streaming_support,role
+Twelve Data,4.05,5.0,4.0,1.5,5.0,5.0,Duidelijkste premiumroute naar real-time EU-koersen
+EODHD,3.18,5.0,2.5,3.0,2.0,3.0,Sterk voor Europese EOD/vertraagde data; commerciële offerte vereist
+Marketstack,3.15,3.5,3.5,5.0,1.5,1.0,"Goedkoopste kandidaat voor commerciële EOD-MVP, na schriftelijke bevestiging"
+Finnhub,2.88,4.0,1.5,1.0,4.0,5.0,"Technisch sterk, maar duur en commercieel maatwerk"
+Tiingo,2.33,2.5,2.0,2.0,2.0,4.0,Interne licenties duidelijker dan klantweergave; EU-fit onvoldoende bevestigd
+Financial Modeling Prep,2.12,3.0,1.5,2.5,2.0,1.0,Bruikbaar voor analyse/fundamentals; displaylicentie en EU-realtime onduidelijk
+Alpaca Market Data,1.93,1.5,1.0,2.0,2.0,5.0,Niet geschikt voor gewone redistributie in een klantapp
+Massive,1.85,1.0,2.0,2.0,1.0,5.0,Valt af wegens uitsluitend Amerikaanse marktdekking

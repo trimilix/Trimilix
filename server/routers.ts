@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription, getEtfBySymbol, createEtf, listEtfs, getDb } from "./db";
+import { analyzePortfolio } from "./portfolioAnalysis";
 import { etfs } from "../drizzle/schema";
 import { count } from "drizzle-orm";
 import { z } from "zod";
@@ -28,11 +29,14 @@ export const appRouter = router({
       getPortfolioWithHoldings(input.id)
     ),
     create: protectedProcedure.input(z.object({
-      name: z.string(),
-      description: z.string().optional(),
-      currency: z.string().default("EUR"),
+      name: z.string().min(1, "Naam is verplicht").max(255, "Naam is te lang"),
+      description: z.string().max(1000, "Beschrijving is te lang").optional(),
+      currency: z.string().length(3, "Valuta moet 3 tekens zijn").default("EUR"),
     })).mutation(({ ctx, input }) =>
       createPortfolio(ctx.user.id, input)
+    ),
+    analyze: protectedProcedure.input(z.object({ portfolioId: z.number() })).query(({ input }) =>
+      analyzePortfolio(input.portfolioId)
     ),
   }),
 
