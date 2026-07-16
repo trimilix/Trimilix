@@ -1,0 +1,229 @@
+=== GIT STATUS ===
+ [31mM[m todo.md
+[31m??[m audit-inventory.txt
+
+=== ROOT ===
+./.gitignore
+./.gitkeep
+./.manus-logs/browserConsole.log
+./.manus-logs/devserver.log
+./.manus-logs/networkRequests.log
+./.pnpmfile.cjs
+./.prettierignore
+./.prettierrc
+./.project-config.json
+./ENGINEERING_HANDBOOK.md
+./audit-inventory.txt
+./client/index.html
+./components.json
+./dist/index.js
+./docs/CTO_SPRINT_REVIEW_TEMPLATE.md
+./docs/advies-marktdata-aanbieders.md
+./docs/architecture.md
+./docs/cto-baseline-audit.md
+./docs/market-data-architecture.md
+./docs/marktdata-aanbieders-bronnotities.md
+./docs/marktdata-aanbieders-onderzoeksopzet.md
+./docs/marktdata-provider-scores.csv
+./docs/security-audit-sources.md
+./drizzle.config.ts
+./drizzle/0000_deep_zeigeist.sql
+./drizzle/0001_silent_silhouette.sql
+./drizzle/0002_cooing_jack_flag.sql
+./drizzle/0003_useful_baron_strucker.sql
+./drizzle/relations.ts
+./drizzle/schema.ts
+./drizzle/seed.ts
+./ideas.md
+./package.json
+./patches/wouter@3.7.1.patch
+./pnpm-lock.yaml
+./pnpm-workspace.yaml
+./scripts/audit-dependencies.mjs
+./scripts/build_trimilix_logo_assets.py
+./scripts/plot_marktdata_scores.py
+./scripts/scan-secrets.mjs
+./scripts/score_marktdata_providers.py
+./server/auth.logout.test.ts
+./server/authorization.test.ts
+./server/branding.integration.test.ts
+./server/db.ts
+./server/index.ts
+./server/portfolioAnalysis.ts
+./server/routers.ts
+./server/storage.ts
+./shared/const.ts
+./shared/types.ts
+./template.json
+./todo.md
+./tsconfig.json
+./tsconfig.node.json
+./vite.config.ts
+./vitest.config.ts
+
+=== SOURCE COUNTS ===
+css 1
+csv 1
+gitkeep 2
+html 1
+js 1
+json 6
+md 15
+sql 4
+ts 39
+tsx 70
+
+=== LARGEST SOURCE FILES ===
+58315 client/src/pages/ComponentShowcase.tsx
+21947 client/src/components/ui/sidebar.tsx
+18394 docs/market-data-architecture.md
+16524 docs/sprint-reviews/cto-sprint-audit-2026-07-16.md
+15339 drizzle/meta/0003_snapshot.json
+15134 drizzle/meta/0002_snapshot.json
+14632 docs/advies-marktdata-aanbieders.md
+14217 client/src/pages/PortfolioChecker.tsx
+12621 drizzle/meta/0001_snapshot.json
+11866 docs/media/trimilix-video-series.md
+10851 client/src/components/AIChatBox.tsx
+10831 docs/architecture.md
+10778 server/_core/llm.ts
+10113 client/src/components/ui/chart.tsx
+10054 server/_core/sdk.ts
+9757 client/src/pages/GoalPlanner.tsx
+9666 client/src/pages/ETFCheck.tsx
+9151 server/_core/map.ts
+8998 client/src/components/DashboardLayout.tsx
+8813 docs/operations/backup-recovery.md
+8451 docs/operations/monitoring-sli.md
+8434 client/src/components/ui/dropdown-menu.tsx
+8405 client/src/components/ui/menubar.tsx
+8334 client/src/pages/Home.tsx
+8284 client/src/components/ui/context-menu.tsx
+8107 server/_core/voiceTranscription.ts
+8025 client/src/pages/CompoundingSimulator.tsx
+7663 client/src/components/ui/calendar.tsx
+7527 docs/marktdata-aanbieders-bronnotities.md
+7364 docs/cto-baseline-audit.md
+
+=== PACKAGE SCRIPTS AND DEPENDENCIES ===
+{
+  "scripts": {
+    "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
+    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "start": "NODE_ENV=production node dist/index.js",
+    "check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "security:secrets": "node scripts/scan-secrets.mjs",
+    "security:deps": "node scripts/audit-dependencies.mjs",
+    "verify": "pnpm check && pnpm test && pnpm security:secrets && pnpm security:deps && pnpm build",
+    "db:push": "drizzle-kit generate && drizzle-kit migrate",
+    "db:seed": "tsx drizzle/seed.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.693.0",
+    "@aws-sdk/s3-request-presigner": "^3.693.0",
+    "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-alert-dialog": "^1.1.15",
+    "@radix-ui/react-aspect-ratio": "^1.1.7",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-checkbox": "^1.3.3",
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-context-menu": "^2.2.16",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-hover-card": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-menubar": "^1.1.16",
+    "@radix-ui/react-navigation-menu": "^1.2.14",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-progress": "^1.1.7",
+    "@radix-ui/react-radio-group": "^1.3.8",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-toggle": "^1.1.10",
+    "@radix-ui/react-toggle-group": "^1.1.11",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tanstack/react-query": "^5.90.2",
+    "@trpc/client": "^11.6.0",
+    "@trpc/react-query": "^11.6.0",
+    "@trpc/server": "^11.6.0",
+    "axios": "^1.18.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "cookie": "^1.0.2",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "embla-carousel-react": "^8.6.0",
+    "express": "^4.22.2",
+    "framer-motion": "^12.23.22",
+    "input-otp": "^1.4.2",
+    "jose": "6.1.0",
+    "lucide-react": "^0.453.0",
+    "mysql2": "^3.15.0",
+    "nanoid": "^5.1.5",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.1",
+    "react-day-picker": "^9.11.1",
+    "react-dom": "^19.2.1",
+    "react-hook-form": "^7.64.0",
+    "react-resizable-panels": "^3.0.6",
+    "recharts": "^2.15.4",
+    "sonner": "^2.0.7",
+    "streamdown": "^2.5.0",
+    "superjson": "^1.13.3",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^1.1.2",
+    "wouter": "^3.3.5",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
+    "@tailwindcss/typography": "^0.5.15",
+    "@tailwindcss/vite": "^4.1.3",
+    "@types/express": "4.17.21",
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^24.7.0",
+    "@types/react": "^19.2.1",
+    "@types/react-dom": "^19.2.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "add": "^2.0.6",
+    "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.31.4",
+    "esbuild": "^0.25.0",
+    "pnpm": "^10.15.1",
+    "postcss": "^8.4.47",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.19.1",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "5.9.3",
+    "vite": "^7.1.7",
+    "vite-plugin-manus-runtime": "0.0.59",
+    "vitest": "^2.1.4"
+  }
+}
+
+=== MIGRATIONS ===
+drizzle/0000_deep_zeigeist.sql 483 bytes
+drizzle/0001_silent_silhouette.sql 2617 bytes
+drizzle/0002_cooing_jack_flag.sql 503 bytes
+drizzle/0003_useful_baron_strucker.sql 58 bytes
+drizzle/meta/0000_snapshot.json 2593 bytes
+drizzle/meta/0001_snapshot.json 12621 bytes
+drizzle/meta/0002_snapshot.json 15134 bytes
+drizzle/meta/0003_snapshot.json 15339 bytes
+drizzle/meta/_journal.json 640 bytes
+drizzle/migrations/.gitkeep 0 bytes
+drizzle/relations.ts 27 bytes
+drizzle/schema.ts 5235 bytes
+drizzle/seed.ts 1820 bytes

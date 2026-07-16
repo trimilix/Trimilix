@@ -1,0 +1,69 @@
+# Root response headers
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Content-Type: text/html; charset=utf-8
+Date: Thu, 16 Jul 2026 06:14:48 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Content-Length: 368633
+
+
+# OAuth callback validation headers
+HTTP/1.1 400 Bad Request
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 39
+ETag: W/"27-OZcWidPzQ/yRebcrBYq6IoHoaok"
+Date: Thu, 16 Jul 2026 06:14:48 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+# Security middleware dependencies
+83:    "zod": "^4.1.12"
+
+# Potentially sensitive browser storage
+client/src/components/ui/chart.tsx:81:      dangerouslySetInnerHTML={{
+client/src/components/ui/sidebar.tsx:85:      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+client/src/components/DashboardLayout.tsx:46:    const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
+client/src/components/DashboardLayout.tsx:52:    localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
+client/src/const.ts:21:  document.cookie = `${OAUTH_STATE_COOKIE}=${nonce}; Path=/; Max-Age=600; SameSite=None; Secure`;
+client/src/contexts/ThemeContext.tsx:26:      const stored = localStorage.getItem("theme");
+client/src/contexts/ThemeContext.tsx:41:      localStorage.setItem("theme", theme);
+client/src/main.tsx:48:        // session into sessionStorage so we can forward it as a Bearer token.
+client/src/main.tsx:51:          const raw = sessionStorage.getItem("manus-cookie");
+client/src/main.tsx:61:          // sessionStorage unavailable
+client/src/_core/hooks/useAuth.ts:42:      // Clear the Preview auto-login token mirrored into sessionStorage, so
+client/src/_core/hooks/useAuth.ts:46:        sessionStorage.removeItem("manus-cookie");
+client/src/_core/hooks/useAuth.ts:54:    localStorage.setItem(
+
+# Public and protected procedures
+4:import { adminProcedure, publicProcedure, router, protectedProcedure } from "./_core/trpc";
+14:    me: publicProcedure.query(opts => opts.ctx.user),
+15:    logout: publicProcedure.mutation(({ ctx }) => {
+25:    list: protectedProcedure.query(({ ctx }) =>
+28:    get: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(({ ctx, input }) =>
+31:    create: protectedProcedure.input(z.object({
+38:    analyze: protectedProcedure.input(z.object({ portfolioId: z.number().int().positive() })).query(({ ctx, input }) =>
+44:    list: protectedProcedure.query(({ ctx }) =>
+50:    get: protectedProcedure.query(({ ctx }) =>
+56:    list: protectedProcedure.query(() =>
+59:    get: protectedProcedure.input(z.object({ symbol: z.string() })).query(({ input }) =>
+62:    create: adminProcedure.input(z.object({
+73:    count: protectedProcedure.query(async () => {
+
+# Input validators without explicit limits
+28:    get: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(({ ctx, input }) =>
+32:      name: z.string().min(1, "Naam is verplicht").max(255, "Naam is te lang"),
+33:      description: z.string().max(1000, "Beschrijving is te lang").optional(),
+34:      currency: z.string().length(3, "Valuta moet 3 tekens zijn").default("EUR"),
+38:    analyze: protectedProcedure.input(z.object({ portfolioId: z.number().int().positive() })).query(({ ctx, input }) =>
+59:    get: protectedProcedure.input(z.object({ symbol: z.string() })).query(({ input }) =>
+63:      symbol: z.string().max(10),
+64:      name: z.string().max(255),
+65:      isin: z.string().max(12).optional(),
+66:      ter: z.number().int().optional(),
+67:      currency: z.string().max(3),
+68:      assetClass: z.string().max(50).optional(),
+69:      region: z.string().max(50).optional(),

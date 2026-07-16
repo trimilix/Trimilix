@@ -1,0 +1,145 @@
+# Build artifacts
+1187997 dist/public/assets/index-JqwqjyC0.js
+368453 dist/public/index.html
+121047 dist/public/assets/index-BS_ZCWbG.css
+38106 dist/index.js
+25168 dist/public/__manus__/debug-collector.js
+57 dist/public/__manus__/version.json
+0 dist/public/.gitkeep
+
+# Lazy loading and dynamic imports
+
+# Query hooks and list endpoints
+client/src/pages/Home.tsx:15:  const { data: portfolios, isLoading: portfoliosLoading } = trpc.portfolio.list.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/Home.tsx:16:  const { data: subscription } = trpc.subscription.get.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/ETFCheck.tsx:16:  const { data: etfs, isLoading: isLoadingEtfs, error: etfsError } = trpc.etf.list.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/ETFCheck.tsx:17:  const { data: selectedETF, isLoading: isLoadingSelectedEtf, error: selectedEtfError } = trpc.etf.get.useQuery({ symbol: selectedSymbol! }, { enabled: isAuthenticated && !!selectedSymbol });
+client/src/pages/PortfolioChecker.tsx:15:  const { data: portfolios, isLoading: isLoadingPortfolios, error: portfoliosError } = trpc.portfolio.list.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/PortfolioChecker.tsx:16:  const { data: selectedPortfolio, isLoading: isLoadingSelectedPortfolio, error: selectedPortfolioError } = trpc.portfolio.get.useQuery({ id: selectedPortfolioId! }, { enabled: isAuthenticated && !!selectedPortfolioId });
+client/src/pages/PortfolioChecker.tsx:18:  const { data: portfolioAnalysis, isLoading: isLoadingAnalysis, error: analysisError } = trpc.portfolio.analyze.useQuery({ portfolioId: selectedPortfolioId! }, { enabled: isAuthenticated && !!selectedPortfolioId });
+client/src/_core/hooks/useAuth.ts:19:  const meQuery = trpc.auth.me.useQuery(undefined, {
+
+# Test files and cases
+./server/auth.logout.test.ts
+./server/authorization.test.ts
+./server/branding.integration.test.ts
+server/auth.logout.test.ts:45:  it("clears the session cookie and reports success", async () => {
+server/authorization.test.ts:66:  it("passes the authenticated user id into portfolio detail queries", async () => {
+server/authorization.test.ts:75:  it("passes the authenticated user id into portfolio analyses", async () => {
+server/authorization.test.ts:84:  it("rejects ETF creation by a regular user", async () => {
+server/authorization.test.ts:93:  it("allows an admin to create an ETF", async () => {
+server/branding.integration.test.ts:9:  it("uses the approved direction-A logo assets on the home page", () => {
+server/branding.integration.test.ts:21:  it("publishes Dutch metadata and the standalone mark as favicon", () => {
+
+# Local response timings
+root run 1: status=200 ttfb=0.007022s total=0.007197s size=368633
+root run 2: status=200 ttfb=0.012639s total=0.012837s size=368633
+root run 3: status=200 ttfb=0.011756s total=0.011959s size=368633
+root run 4: status=200 ttfb=0.010223s total=0.010393s size=368633
+root run 5: status=200 ttfb=0.013416s total=0.013653s size=368633
+
+# Recent server warnings/errors
+[2026-07-15T21:16:14.907Z] at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[2026-07-15T21:16:22.546Z] c[OAuth] Initialized with baseURL: https://api.manus.im
+[2026-07-15T21:18:09.617Z] ELIFECYCLE  Command failed.
+[2026-07-15T21:20:11.584Z] 9:20:11 PM [tsx] change in ./server/db.ts Restarting...
+[2026-07-15T21:22:53.102Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:22:53.102Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:23:14.935Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:23:14.936Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:23:29.552Z] c[OAuth] Initialized with baseURL: https://api.manus.im
+[2026-07-15T21:23:39.606Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:23:39.606Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:24:01.817Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:24:01.817Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:24:26.162Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:24:26.162Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:24:47.317Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:24:47.317Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:25:12.207Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:25:12.207Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:25:34.550Z] 9:25:34 PM [tsx] change in ./server/db.ts Rerunning...
+[2026-07-15T21:25:46.623Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:25:46.623Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:26:07.523Z] c[OAuth] Initialized with baseURL: https://api.manus.im
+[2026-07-15T21:26:19.038Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:26:19.039Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:27:08.263Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:27:08.263Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:29:57.635Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:29:57.635Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:30:08.501Z] 9:30:08 PM [tsx] change in ./server/db.ts Rerunning...
+[2026-07-15T21:30:16.002Z] ELIFECYCLE  Command failed.
+[2026-07-15T21:30:19.504Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-07-15T21:31:16.661Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:31:16.661Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:32:35.607Z] triggerUncaughtException(
+[2026-07-15T21:32:35.607Z] Error [TransformError]: Transform failed with 1 error:
+[2026-07-15T21:32:35.607Z] /home/ubuntu/moderne-bedrijfswebsite/server/db.ts:190:7: ERROR: Unexpected "export"
+[2026-07-15T21:32:35.607Z] at failureErrorWithLog (/home/ubuntu/moderne-bedrijfswebsite/node_modules/.pnpm/esbuild@0.25.10/node_modules/esbuild/lib/main.js:1467:15)
+[2026-07-15T21:32:35.607Z] at Socket.readFromStdout (/home/ubuntu/moderne-bedrijfswebsite/node_modules/.pnpm/esbuild@0.25.10/node_modules/esbuild/lib/main.js:581:7)
+[2026-07-15T21:32:35.607Z] at Socket.emit (node:events:524:28)
+[2026-07-15T21:32:35.607Z] at addChunk (node:internal/streams/readable:561:12)
+[2026-07-15T21:32:35.607Z] at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[2026-07-15T21:32:45.648Z] ELIFECYCLE  Command failed.
+[2026-07-15T21:32:47.537Z] > moderne-bedrijfswebsite@1.0.0 dev /home/ubuntu/moderne-bedrijfswebsite
+[2026-07-15T21:32:47.537Z] > NODE_ENV=development tsx watch server/_core/index.ts
+[2026-07-15T21:34:01.782Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:34:01.782Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:50:05.794Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:50:05.794Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:50:12.169Z] ELIFECYCLE  Command failed.
+[2026-07-15T21:50:15.613Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:50:15.613Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:50:40.491Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:50:40.491Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:50:50.587Z] 9:50:50 PM [tsx] change in ./server/db.ts Rerunning...
+[2026-07-15T21:51:03.157Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:51:03.157Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:51:34.743Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:51:34.743Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:52:03.531Z] c[OAuth] Initialized with baseURL: https://api.manus.im
+[2026-07-15T21:52:15.428Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:52:15.428Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:52:41.495Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:52:41.495Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:52:58.078Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:52:58.078Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:53:02.517Z] 9:53:02 PM [tsx] change in ./server/db.ts Rerunning...
+[2026-07-15T21:53:16.277Z] SyntaxError: The requested module './db' does not provide an export named 'analyzePortfolio'
+[2026-07-15T21:53:16.277Z] at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+[2026-07-15T21:53:39.043Z] ELIFECYCLE  Command failed.
+[2026-07-15T21:53:49.823Z] ELIFECYCLE  Command failed.
+[2026-07-15T21:54:08.013Z] ELIFECYCLE  Command failed.
+[2026-07-15T21:54:11.562Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-07-15T22:43:42.580Z] ELIFECYCLE  Command failed.
+[2026-07-15T22:44:52.159Z] ELIFECYCLE  Command failed.
+[2026-07-15T22:46:20.954Z] ELIFECYCLE  Command failed.
+[2026-07-15T22:47:20.451Z] ELIFECYCLE  Command failed.
+[2026-07-15T22:47:21.559Z] Starting dev server with command: pnpm run dev
+[2026-07-15T22:49:11.812Z] ELIFECYCLE  Command failed.
+[2026-07-15T22:59:37.973Z] ELIFECYCLE  Command failed.
+
+# Recent browser warnings/errors
+
+# Network failures
+[2026-07-15T11:00:50.571Z] {"timestamp":1784113249219,"type":"fetch","method":"GET","url":"/api/trpc/auth.me?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Wed, 15 Jul 2026 11:00:50 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"id":1,"openId":"B77BARDYdhkECjBsYUssRH","name":"tristan","email":"tristan@detribv.com","loginMethod":"email","role":"admin","createdAt":"2026-07-15T11:00:50.000Z","updatedAt":"2026-07-15T11:00:50.000Z","lastSignedIn":"2026-07-15T11:00:49.000Z"},"meta":{"values":{"createdAt":"[Max Depth]","updatedAt":"[Max Depth]","lastSignedIn":"[Max Depth]"}}}}}]},"duration":1056,"error":null}
+[2026-07-15T20:37:45.361Z] {"timestamp":1784147864327,"type":"fetch","method":"GET","url":"/api/trpc/etf.count?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Wed, 15 Jul 2026 20:37:45 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"count":5}}}}]},"duration":920,"error":null}
+[2026-07-16T06:04:27.333Z] {"timestamp":1784181866038,"type":"fetch","method":"GET","url":"/api/trpc/auth.me?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:04:26 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"id":1,"openId":"B77BARDYdhkECjBsYUssRH","name":"tristan","email":"tristan@detribv.com","loginMethod":"email","role":"admin","createdAt":"2026-07-15T11:00:50.000Z","updatedAt":"2026-07-16T06:04:26.000Z","lastSignedIn":"2026-07-16T06:04:26.000Z"},"meta":{"values":{"createdAt":"[Max Depth]","updatedAt":"[Max Depth]","lastSignedIn":"[Max Depth]"}}}}}]},"duration":861,"error":null}
+[2026-07-16T06:04:27.333Z] {"timestamp":1784181866928,"type":"fetch","method":"GET","url":"/api/trpc/portfolio.list,subscription.get?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%2C%221%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:04:27 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":[]}}},{"result":{"data":{"json":null}}}]},"duration":280,"error":null}
+[2026-07-16T06:04:27.345Z] {"timestamp":1784181865873,"type":"fetch","method":"GET","url":"/api/trpc/auth.me?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:04:26 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"id":1,"openId":"B77BARDYdhkECjBsYUssRH","name":"tristan","email":"tristan@detribv.com","loginMethod":"email","role":"admin","createdAt":"2026-07-15T11:00:50.000Z","updatedAt":"2026-07-15T23:01:30.000Z","lastSignedIn":"2026-07-15T23:01:29.000Z"},"meta":{"values":{"createdAt":"[Max Depth]","updatedAt":"[Max Depth]","lastSignedIn":"[Max Depth]"}}}}}]},"duration":1002,"error":null}
+[2026-07-16T06:04:27.345Z] {"timestamp":1784181866889,"type":"fetch","method":"GET","url":"/api/trpc/portfolio.list?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:04:27 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":[]}}}]},"duration":393,"error":null}
+[2026-07-16T06:04:27.417Z] {"timestamp":1784181866101,"type":"fetch","method":"GET","url":"/api/trpc/auth.me?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:04:26 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"id":1,"openId":"B77BARDYdhkECjBsYUssRH","name":"tristan","email":"tristan@detribv.com","loginMethod":"email","role":"admin","createdAt":"2026-07-15T11:00:50.000Z","updatedAt":"2026-07-16T06:04:26.000Z","lastSignedIn":"2026-07-16T06:04:27.000Z"},"meta":{"values":{"createdAt":"[Max Depth]","updatedAt":"[Max Depth]","lastSignedIn":"[Max Depth]"}}}}}]},"duration":823,"error":null}
+[2026-07-16T06:04:27.417Z] {"timestamp":1784181866934,"type":"fetch","method":"GET","url":"/api/trpc/etf.list?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:04:27 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":[{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"}],"meta":{"values":{"0.createdAt":"[Max Depth]","0.updatedAt":"[Max Depth]","1.createdAt":"[Max Depth]","1.updatedAt":"[Max Depth]","2.createdAt":"[Max Depth]","2.updatedAt":"[Max Depth]","3.createdAt":"[Max Depth]","3.updatedAt":"[Max Depth]","4.createdAt":"[Max Depth]","4.updatedAt":"[Max Depth]"}}}}}]},"duration":338,"error":null}
+[2026-07-16T06:05:07.141Z] {"timestamp":1784181905870,"type":"fetch","method":"GET","url":"/api/trpc/auth.me?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:05:05 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"id":1,"openId":"B77BARDYdhkECjBsYUssRH","name":"tristan","email":"tristan@detribv.com","loginMethod":"email","role":"admin","createdAt":"2026-07-15T11:00:50.000Z","updatedAt":"2026-07-16T06:05:05.000Z","lastSignedIn":"2026-07-16T06:05:06.000Z"},"meta":{"values":{"createdAt":"[Max Depth]","updatedAt":"[Max Depth]","lastSignedIn":"[Max Depth]"}}}}}]},"duration":18,"error":null}
+[2026-07-16T06:05:07.141Z] {"timestamp":1784181905919,"type":"fetch","method":"GET","url":"/api/trpc/portfolio.list,subscription.get?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%2C%221%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:05:05 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":[]}}},{"result":{"data":{"json":null}}}]},"duration":32,"error":null}
+[2026-07-16T06:05:07.224Z] {"timestamp":1784181905737,"type":"fetch","method":"GET","url":"/api/trpc/auth.me?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:05:05 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"id":1,"openId":"B77BARDYdhkECjBsYUssRH","name":"tristan","email":"tristan@detribv.com","loginMethod":"email","role":"admin","createdAt":"2026-07-15T11:00:50.000Z","updatedAt":"2026-07-16T06:04:26.000Z","lastSignedIn":"2026-07-16T06:04:27.000Z"},"meta":{"values":{"createdAt":"[Max Depth]","updatedAt":"[Max Depth]","lastSignedIn":"[Max Depth]"}}}}}]},"duration":44,"error":null}
+[2026-07-16T06:05:07.224Z] {"timestamp":1784181905797,"type":"fetch","method":"GET","url":"/api/trpc/portfolio.list?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:05:05 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":[]}}}]},"duration":29,"error":null}
+[2026-07-16T06:05:07.297Z] {"timestamp":1784181905953,"type":"fetch","method":"GET","url":"/api/trpc/auth.me?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:05:05 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":{"id":1,"openId":"B77BARDYdhkECjBsYUssRH","name":"tristan","email":"tristan@detribv.com","loginMethod":"email","role":"admin","createdAt":"2026-07-15T11:00:50.000Z","updatedAt":"2026-07-16T06:05:05.000Z","lastSignedIn":"2026-07-16T06:05:06.000Z"},"meta":{"values":{"createdAt":"[Max Depth]","updatedAt":"[Max Depth]","lastSignedIn":"[Max Depth]"}}}}}]},"duration":19,"error":null}
+[2026-07-16T06:05:07.297Z] {"timestamp":1784181905982,"type":"fetch","method":"GET","url":"/api/trpc/etf.list?batch=1&input=%7B%220%22%3A%7B%22json%22%3Anull%2C%22meta%22%3A%7B%22values%22%3A%5B%22undefined%22%5D%7D%7D%7D","request":{"headers":{},"body":null},"response":{"status":200,"statusText":"OK","headers":{"connection":"keep-alive","content-type":"application/json","date":"Thu, 16 Jul 2026 06:05:06 GMT","keep-alive":"timeout=5","transfer-encoding":"chunked","vary":"trpc-accept, accept","x-powered-by":"Express"},"body":[{"result":{"data":{"json":[{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"},{"id":"[Max Depth]","symbol":"[Max Depth]","name":"[Max Depth]","isin":"[Max Depth]","ter":"[Max Depth]","currency":"[Max Depth]","assetClass":"[Max Depth]","region":"[Max Depth]","riskScore":"[Max Depth]","createdAt":"[Max Depth]","updatedAt":"[Max Depth]"}],"meta":{"values":{"0.createdAt":"[Max Depth]","0.updatedAt":"[Max Depth]","1.createdAt":"[Max Depth]","1.updatedAt":"[Max Depth]","2.createdAt":"[Max Depth]","2.updatedAt":"[Max Depth]","3.createdAt":"[Max Depth]","3.updatedAt":"[Max Depth]","4.createdAt":"[Max Depth]","4.updatedAt":"[Max Depth]"}}}}}]},"duration":26,"error":null}
+
+# Operations files
+./.git/hooks/fsmonitor-watchman.sample
+./docs/operations/monitoring-sli.md
+./docs/operations/backup-recovery.md
+./scripts/audit-dependencies.mjs

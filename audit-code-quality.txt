@@ -1,0 +1,149 @@
+=== GROOTSTE APPLICATIEBESTANDEN ===
+ 11363 total
+  1437 client/src/pages/ComponentShowcase.tsx
+   734 client/src/components/ui/sidebar.tsx
+   355 client/src/components/ui/chart.tsx
+   335 client/src/components/AIChatBox.tsx
+   299 client/src/pages/PortfolioChecker.tsx
+   274 client/src/components/ui/menubar.tsx
+   262 client/src/components/DashboardLayout.tsx
+   257 client/src/pages/GoalPlanner.tsx
+   255 client/src/components/ui/dropdown-menu.tsx
+   250 client/src/components/ui/context-menu.tsx
+   242 client/src/components/ui/field.tsx
+   239 client/src/components/ui/carousel.tsx
+   223 client/src/pages/ETFCheck.tsx
+   211 client/src/components/ui/calendar.tsx
+   209 client/src/components/ui/dialog.tsx
+   197 client/src/pages/CompoundingSimulator.tsx
+   193 client/src/pages/Home.tsx
+   193 client/src/components/ui/item.tsx
+   185 client/src/components/ui/select.tsx
+   184 client/src/components/ui/command.tsx
+   179 server/db.ts
+   176 client/src/index.css
+   168 client/src/components/ui/navigation-menu.tsx
+   168 client/src/components/ui/input-group.tsx
+   168 client/src/components/ui/form.tsx
+   155 client/src/components/ui/alert-dialog.tsx
+   155 client/src/components/Map.tsx
+   139 client/src/components/ui/sheet.tsx
+   133 client/src/components/ui/drawer.tsx
+
+=== ONDERHOUDSSIGNALEN ===
+TODO/FIXME: 1
+explicit any: 5
+ts-ignore/expect-error: 0
+console calls: 19
+non-null assertions: 0
+
+=== DETAILS TODO EN TYPE-OMZEILINGEN ===
+client/src/components/ui/dialog.tsx:107:      const isCurrentlyComposing = (e as any).isComposing || isComposing();
+client/src/components/ui/input.tsx:25:      const isComposing = (e.nativeEvent as any).isComposing || dialogComposition.justEndedComposing();
+client/src/components/ui/textarea.tsx:24:      const isComposing = (e.nativeEvent as any).isComposing || dialogComposition.justEndedComposing();
+client/src/hooks/usePersistFn.ts:3:type noop = (...args: any[]) => any;
+client/src/pages/ETFCheck.tsx:27:      // TODO: Implement actual add to portfolio logic via tRPC mutation
+server/storage.ts:59:      : new Blob([data as any], { type: contentType });
+
+=== PAGINA-IMPORTGRENZEN ===
+--- client/src/pages/ComponentShowcase.tsx
+import {
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+import {
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+import {
+import {
+import {
+import {
+import {
+import {
+import { Input } from "@/components/ui/input";
+import {
+import { Label } from "@/components/ui/label";
+import {
+import {
+import {
+import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+import { Separator } from "@/components/ui/separator";
+import {
+import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import {
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+import { useTheme } from "@/contexts/ThemeContext";
+import { format } from "date-fns";
+import { zhCN } from "date-fns/locale";
+import {
+import { useState } from "react";
+import { toast as sonnerToast } from "sonner";
+import { AIChatBox, type Message } from "@/components/AIChatBox";
+--- client/src/pages/CompoundingSimulator.tsx
+import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+--- client/src/pages/ETFCheck.tsx
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Search, TrendingUp, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+--- client/src/pages/GoalPlanner.tsx
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Target, Plus, Trash2, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
+--- client/src/pages/Home.tsx
+import { useAuth } from "@/_core/hooks/useAuth";
+import { startLogin } from "@/const";
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, TrendingUp, Wallet, Target, Plus } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+--- client/src/pages/NotFound.tsx
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle, Home } from "lucide-react";
+import { useLocation } from "wouter";
+--- client/src/pages/PortfolioChecker.tsx
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+
+=== TESTBESTANDEN EN GETESTE MODULES ===
+./server/auth.logout.test.ts
+./server/authorization.test.ts
+./server/branding.integration.test.ts

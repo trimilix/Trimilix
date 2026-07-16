@@ -1,0 +1,56 @@
+
+> moderne-bedrijfswebsite@1.0.0 verify /home/ubuntu/moderne-bedrijfswebsite
+> pnpm check && pnpm test && pnpm security:secrets && pnpm security:deps && pnpm build
+
+
+> moderne-bedrijfswebsite@1.0.0 check /home/ubuntu/moderne-bedrijfswebsite
+> tsc --noEmit
+
+
+> moderne-bedrijfswebsite@1.0.0 test /home/ubuntu/moderne-bedrijfswebsite
+> vitest run
+
+
+ RUN  v2.1.9 /home/ubuntu/moderne-bedrijfswebsite
+
+ ✓ server/branding.integration.test.ts (2 tests) 4ms
+ ✓ server/authorization.test.ts (4 tests) 10ms
+ ✓ server/auth.logout.test.ts (1 test) 6ms
+
+ Test Files  3 passed (3)
+      Tests  7 passed (7)
+   Start at  06:03:02
+   Duration  756ms (transform 180ms, setup 0ms, collect 930ms, tests 20ms, environment 1ms, prepare 218ms)
+
+
+> moderne-bedrijfswebsite@1.0.0 security:secrets /home/ubuntu/moderne-bedrijfswebsite
+> node scripts/scan-secrets.mjs
+
+Secretscan geslaagd: geen high-confidence hardcoded secrets gevonden.
+
+> moderne-bedrijfswebsite@1.0.0 security:deps /home/ubuntu/moderne-bedrijfswebsite
+> node scripts/audit-dependencies.mjs
+
+OSV-dependencyaudit geslaagd: 495 geïnstalleerde productiepackageversies gecontroleerd.
+
+> moderne-bedrijfswebsite@1.0.0 build /home/ubuntu/moderne-bedrijfswebsite
+> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v7.1.9 building for production...
+transforming...
+✓ 2395 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   368.45 kB │ gzip: 105.80 kB
+../dist/public/assets/index-BS_ZCWbG.css    121.05 kB │ gzip:  19.12 kB
+../dist/public/assets/index-JqwqjyC0.js   1,188.00 kB │ gzip: 327.32 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.37s
+
+  dist/index.js  37.2kb
+
+⚡ Done in 6ms

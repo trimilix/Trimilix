@@ -77,4 +77,18 @@
 - [x] Ontwerp drie onderscheidende Trimilix-logo-richtingen in standaardkwaliteit met gouden T, groeigrafiek en zwart-goud-witte merkbasis.
 - [x] Laat de gebruiker één logorichting kiezen en verwerk gerichte feedback zonder de pilotvideo verder te produceren. Gekozen: A — Refined Legacy; app/favicon gebruikt alleen het beeldmerk.
 - [x] Produceer de gekozen richting als hoofdlogo, beeldmerk, gestapelde toepassing, lichte en donkere variant, SVG, transparante PNG, PDF en faviconformaten. Richting A is als hoofdlogo vastgelegd; app/favicon gebruikt alleen het beeldmerk.
-- [ ] Verwerk het definitieve Trimilix-logo in de website en hervat daarna pas de standaardkwaliteits-preview van de pilotvideo.
+- [x] Verwerk het definitieve Trimilix-logo in de website en hervat daarna pas de standaardkwaliteits-preview van de pilotvideo.
+
+## Fase 7: Kwaliteitsstop vóór verdere bouw
+- [x] Huidige Trimilix-defaultpilot volledig afwerken, controleren en aan de gebruiker opleveren.
+- [x] Professionele opbouw, visuele consistentie, responsiviteit en toegankelijkheid van de huidige website auditen.
+- [x] Codekwaliteit, onderhoudbaarheid, modulariteit, duplicatie en conventies auditen.
+- [x] Architectuur, domeinscheiding, afhankelijkheden en schaalbaarheid auditen.
+- [x] Authenticatie, autorisatie, invoervalidatie, secrets, headers, misbruikscenario's en overige beveiligingsrisico's auditen.
+- [x] Databaseschema, migraties, relaties, indexen, integriteit en operationele risico's auditen.
+- [x] Frontend-, backend-, netwerk- en buildprestaties meten en beoordelen.
+- [x] Testdekking, foutafhandeling, logging, monitoring en operationele gereedheid auditen.
+- [x] README, architectuurdocumentatie, configuratie en ontwikkelaarsdocumentatie auditen.
+- [x] Beoordelen of het platform veilig en verantwoord verder kan worden uitgebouwd.
+- [x] Senior Software Architect-rapport opleveren met sterke punten, absolute verbeterpunten, latere verbeteringen, technische schuld, risico's en aanbevelingen.
+- [x] Alle nieuwe functionaliteitsbouw blokkeren totdat de gebruiker het auditrapport expliciet heeft goedgekeurd.

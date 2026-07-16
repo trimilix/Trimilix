@@ -1,0 +1,96 @@
+=== INTERACTIEVE ELEMENTEN PER PAGINA ===
+--- client/src/pages/Home.tsx
+buttons=7
+inputs=0
+labels=0
+aria=2
+links=0
+--- client/src/pages/ETFCheck.tsx
+buttons=3
+inputs=1
+labels=1
+aria=0
+links=0
+--- client/src/pages/PortfolioChecker.tsx
+buttons=1
+inputs=0
+labels=0
+aria=0
+links=0
+--- client/src/pages/CompoundingSimulator.tsx
+buttons=0
+inputs=0
+labels=4
+aria=0
+links=0
+--- client/src/pages/GoalPlanner.tsx
+buttons=5
+inputs=3
+labels=3
+aria=0
+links=0
+
+=== DIRECTE NAVIGATIE EN TERUGWEGEN ===
+client/src/pages/Home.tsx:3:import { useLocation } from "wouter";
+client/src/pages/Home.tsx:14:  const [, navigate] = useLocation();
+client/src/pages/PortfolioChecker.tsx:72:                Geen portefeuilles gevonden. Maak er eerst een aan op het Dashboard.
+
+=== RESPONSIVE EN OVERFLOW SIGNALEN ===
+client/src/pages/Home.tsx:28:      <div className="relative min-h-screen overflow-hidden bg-[#050505] px-4 text-white">
+client/src/pages/Home.tsx:30:        <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center py-16 text-center">
+client/src/pages/Home.tsx:34:            className="mb-8 h-auto w-full max-w-[360px]"
+client/src/pages/Home.tsx:36:          <p className="mb-8 max-w-xl text-lg leading-relaxed text-zinc-300 sm:text-xl">
+client/src/pages/Home.tsx:56:        <div className="mx-auto max-w-7xl px-4 py-4">
+client/src/pages/Home.tsx:82:      <div className="max-w-7xl mx-auto px-4 py-8">
+client/src/pages/Home.tsx:98:            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+client/src/pages/Home.tsx:129:        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+client/src/pages/ETFCheck.tsx:51:      <div className="max-w-6xl mx-auto px-4">
+client/src/pages/ETFCheck.tsx:85:        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+client/src/pages/ETFCheck.tsx:106:                        <div className="text-xs text-slate-600 truncate">{etf.name}</div>
+client/src/pages/ETFCheck.tsx:143:                  <div className="grid grid-cols-2 gap-4">
+client/src/pages/PortfolioChecker.tsx:44:      <div className="max-w-6xl mx-auto px-4">
+client/src/pages/PortfolioChecker.tsx:58:              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+client/src/pages/PortfolioChecker.tsx:104:                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+client/src/pages/PortfolioChecker.tsx:187:                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+client/src/pages/CompoundingSimulator.tsx:43:      <div className="max-w-6xl mx-auto px-4">
+client/src/pages/CompoundingSimulator.tsx:50:        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+client/src/pages/CompoundingSimulator.tsx:151:            <div className="grid grid-cols-3 gap-4">
+client/src/pages/GoalPlanner.tsx:84:      <div className="max-w-6xl mx-auto px-4">
+client/src/pages/GoalPlanner.tsx:117:              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+client/src/pages/GoalPlanner.tsx:177:                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+=== HARDCODED DATA EN ASYNC STATE ===
+client/src/pages/Home.tsx:15:  const { data: portfolios, isLoading: portfoliosLoading } = trpc.portfolio.list.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/Home.tsx:16:  const { data: subscription } = trpc.subscription.get.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/ETFCheck.tsx:1:import { useState } from "react";
+client/src/pages/ETFCheck.tsx:12:  const [searchTerm, setSearchTerm] = useState("");
+client/src/pages/ETFCheck.tsx:13:  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+client/src/pages/ETFCheck.tsx:16:  const { data: etfs, isLoading: isLoadingEtfs, error: etfsError } = trpc.etf.list.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/ETFCheck.tsx:17:  const { data: selectedETF, isLoading: isLoadingSelectedEtf, error: selectedEtfError } = trpc.etf.get.useQuery({ symbol: selectedSymbol! }, { enabled: isAuthenticated && !!selectedSymbol });
+client/src/pages/ETFCheck.tsx:27:      // TODO: Implement actual add to portfolio logic via tRPC mutation
+client/src/pages/ETFCheck.tsx:28:      toast.success(`${selectedETF.symbol} toegevoegd aan portefeuille (mock)`);
+client/src/pages/PortfolioChecker.tsx:1:import { useState } from "react";
+client/src/pages/PortfolioChecker.tsx:9:const COLORS = ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#ef4444", "#f59e0b"];
+client/src/pages/PortfolioChecker.tsx:13:  const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | null>(null);
+client/src/pages/PortfolioChecker.tsx:15:  const { data: portfolios, isLoading: isLoadingPortfolios, error: portfoliosError } = trpc.portfolio.list.useQuery(undefined, { enabled: isAuthenticated });
+client/src/pages/PortfolioChecker.tsx:16:  const { data: selectedPortfolio, isLoading: isLoadingSelectedPortfolio, error: selectedPortfolioError } = trpc.portfolio.get.useQuery({ id: selectedPortfolioId! }, { enabled: isAuthenticated && !!selectedPortfolioId });
+client/src/pages/PortfolioChecker.tsx:18:  const { data: portfolioAnalysis, isLoading: isLoadingAnalysis, error: analysisError } = trpc.portfolio.analyze.useQuery({ portfolioId: selectedPortfolioId! }, { enabled: isAuthenticated && !!selectedPortfolioId });
+client/src/pages/PortfolioChecker.tsx:241:                            {/* For now, using mock data from backend analyzePortfolio function */}
+client/src/pages/CompoundingSimulator.tsx:1:import { useState, useMemo } from "react";
+client/src/pages/CompoundingSimulator.tsx:10:  const [initialAmount, setInitialAmount] = useState(10000);
+client/src/pages/CompoundingSimulator.tsx:11:  const [monthlyContribution, setMonthlyContribution] = useState(500);
+client/src/pages/CompoundingSimulator.tsx:12:  const [annualReturn, setAnnualReturn] = useState(7);
+client/src/pages/CompoundingSimulator.tsx:13:  const [years, setYears] = useState(30);
+client/src/pages/CompoundingSimulator.tsx:17:    const result = [];
+client/src/pages/GoalPlanner.tsx:1:import { useState } from "react";
+client/src/pages/GoalPlanner.tsx:11:const mockGoals = [
+client/src/pages/GoalPlanner.tsx:36:  const [goals, setGoals] = useState(mockGoals);
+client/src/pages/GoalPlanner.tsx:37:  const [newGoal, setNewGoal] = useState({ name: "", targetAmount: "", targetDate: "" });
+client/src/pages/GoalPlanner.tsx:38:  const [showForm, setShowForm] = useState(false);
+client/src/pages/GoalPlanner.tsx:71:  const monthlyNeeded = (goal: typeof mockGoals[0]) => {
+
+=== GLOBALE MOTION EN FOCUS ===
+client/src/pages/Home.tsx:100:                <Card key={portfolio.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+client/src/pages/ETFCheck.tsx:99:                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+client/src/pages/PortfolioChecker.tsx:200:                                className="w-full text-left p-3 rounded-lg border-2 transition-all border-slate-200 hover:border-slate-300"
+client/src/pages/GoalPlanner.tsx:175:              <Card key={goal.id} className="hover:shadow-lg transition-shadow">

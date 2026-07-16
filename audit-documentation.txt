@@ -1,0 +1,61 @@
+# Documentation files
+5756 ./audit-architecture.txt
+3690 ./audit-security.txt
+6831 ./docs/CTO_SPRINT_REVIEW_TEMPLATE.md
+3206 ./docs/adr/0001-modulaire-monoliet-als-startarchitectuur.md
+3205 ./docs/adr/0002-provideronafhankelijke-marktdata.md
+14632 ./docs/advies-marktdata-aanbieders.md
+10831 ./docs/architecture.md
+7364 ./docs/cto-baseline-audit.md
+18394 ./docs/market-data-architecture.md
+7527 ./docs/marktdata-aanbieders-bronnotities.md
+1965 ./docs/marktdata-aanbieders-onderzoeksopzet.md
+973 ./docs/marktdata-provider-scores.csv
+5778 ./docs/media/trimilix-logo-brief.md
+11866 ./docs/media/trimilix-video-series.md
+8813 ./docs/operations/backup-recovery.md
+8451 ./docs/operations/monitoring-sli.md
+1051 ./docs/security-audit-sources.md
+16524 ./docs/sprint-reviews/cto-sprint-audit-2026-07-16.md
+
+# Documentation debt markers
+docs/marktdata-aanbieders-onderzoeksopzet.md:5:Vergelijk alternatieven voor Alpha Vantage voor een Belgische ETF-portefeuilleapp die eerst met vertraagde of laatst beschikbare koersen kan starten en later real-time koersen uitsluitend aan betalende gebruikers kan aanbieden.
+docs/marktdata-aanbieders-onderzoeksopzet.md:17:| Massive (voorheen Polygon.io) | Sterke real-time infrastructuur en WebSockets; relevant als latere premiumoptie. |
+docs/advies-marktdata-aanbieders.md:8:Voor uw geplande aanpak — eerst een betaalbare versie lanceren en pas later real-time koersen aanbieden wanneer er voldoende betalende gebruikers zijn — is **één aanbieder voor alle fases niet noodzakelijk de beste keuze**. De goedkoopste aanbieders hebben doorgaans geen duidelijk gedocumenteerde real-time Europese ETF-feed, terwijl aanbieders met commerciële EU-realtimekoersen en streaming meteen een aanzienlijk zakelijk abonnement vragen.
+docs/advies-marktdata-aanbieders.md:10:> **Aanbeveling:** bouw de eerste versie provider-onafhankelijk en lanceer met end-of-day- of vertraagde koersen. Onderzoek eerst **Marketstack** als budgetvriendelijke MVP-optie en **EODHD** als alternatief met sterker bevestigde Europese beursdekking. Activeer later **Twelve Data** als premiumprovider zodra de abonnementen de vaste datakost, eventuele beurskosten en een veilige marge kunnen dragen.
+docs/advies-marktdata-aanbieders.md:86:Deze aanbieders kunnen later opnieuw worden bekeken wanneer er een specifieke businesscase, onderhandelingsmacht of brokerintegratie bestaat. Voor de huidige gefaseerde strategie leveren ze echter te veel licentie-, dekkings- of kostrisico op.
+docs/advies-marktdata-aanbieders.md:90:De toepassing mag niet rechtstreeks rond één leveranciersformaat worden gebouwd. Een interne `MarketDataProvider`-laag moet symbolen, koersen, tijdstempels, valuta, vertraging en datastatus normaliseren. Daardoor kan de MVP starten met één leverancier en kan later een tweede provider voor premiumgebruikers worden toegevoegd zonder de volledige applicatie te herschrijven.
+docs/advies-marktdata-aanbieders.md:135:> Bouw nu dus een provider-onafhankelijke MVP met duidelijk vertraagde of end-of-daykoersen. Maak real-timekoersen technisch én commercieel een afzonderlijke premiumfeature. Zo houdt u de startkost laag zonder later in een dure herbouw vast te lopen.
+docs/cto-baseline-audit.md:46:Het huidige één-procesmodel is passend voor een MVP op autoscaling hosting. Het is niet nodig om nu Redis, microservices of aparte workers te introduceren. Wel moeten interfaces en datastromen zo ontworpen worden dat latere horizontale schaal mogelijk blijft. Voor marktdata is een server-side provider-adapter met cache, requestcoalescing, time-outs, circuit breakers en quota-/kostenmeting vereist vóór real-time data wordt geactiveerd. Zonder die laag zou elke gebruiker providerrequests kunnen vermenigvuldigen.
+docs/architecture.md:11:Trimilix is vandaag een full-stack modulaire monoliet. Dat model houdt de operationele complexiteit laag en laat snelle, typeveilige ontwikkeling toe. De code wordt wel langs domeingrenzen georganiseerd, zodat marktdata, betalingen, analyses en achtergrondverwerking later onafhankelijk kunnen evolueren wanneer metingen dat rechtvaardigen.
+docs/architecture.md:92:Drizzle beheert het schema en de queryhelpers. De huidige tabellen zijn `users`, `portfolios`, `holdings`, `goals`, `subscriptions` en `etfs`. Holdings bewaren momenteel een `currentPrice`; dat is een MVP-model en geen volwaardige marktdatahistoriek. Marktdatarecords moeten later bron, timestamp, valuta, vertraging en kwaliteit kunnen aantonen.
+docs/adr/0001-modulaire-monoliet-als-startarchitectuur.md:17:De monoliet mag later per domein worden opgesplitst wanneer objectieve schaal-, beveiligings-, team- of deploymentvereisten dat rechtvaardigen.
+docs/adr/0002-provideronafhankelijke-marktdata.md:26:| Premium real-time kan los van betaling en release worden geactiveerd. | Streaming kan later een always-on runtime vereisen. |
+docs/market-data-architecture.md:14:De eerste productfase gebruikt **end-of-day- of vertraagde koersen**. Marketstack blijft een budgetkandidaat na schriftelijke bevestiging van de gewenste Europese ETF-symbolen en externe klantweergaverechten. EODHD blijft het alternatief met sterker publiek bevestigde Europese beursdekking, maar commerciële weergave vereist een offerte en toestemming.[1] [2] De latere real-time premiumfase richt zich op Twelve Data Business, omdat de publieke documentatie externe weergaverechten, EU-marktdata en WebSockets beschrijft; aanvullende beursgoedkeuringen en kosten kunnen nog steeds gelden.[3] [4]
+docs/market-data-architecture.md:214:Een latere WebSocketintegratie gebruikt een beperkt aantal **server-side gedeelde verbindingen**. De server abonneert zich op de actieve symbolenset, normaliseert updates en distribueert uitsluitend naar geautoriseerde sessies. De exacte redistributievorm moet contractueel toegestaan zijn; een technisch werkende fan-out bewijst geen licentierecht.[4]
+docs/operations/backup-recovery.md:42:| Kritieke databasegegevens | ≤ 24 uur; later lager bij betalende schaal | ≤ 8 uur | Platformback-up/PITR en restoretoegang |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:37:| Provideronafhankelijk marktdataontwerp | Maakt EOD-MVP en latere betaalde real-timefase verwisselbaar | `docs/market-data-architecture.md` | Gedocumenteerd; niet geïmplementeerd |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:116:De leveranciersanalyse beveelt **EODHD voor de MVP** aan wegens de betere bevestigde Europese dekking in het onderzoek, en **Twelve Data als latere kandidaat voor een betaalde real-timefase**. Dit is een technische en economische aanbeveling, geen koopbeslissing. Schriftelijke licentiebevestiging, exacte beursdekking, gebruikersrechten, redistributie en exchange fees moeten vóór contractering opnieuw worden bevestigd.
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:163:De recente devserverlog bevat historische importfouten, maar latere serverstarts en de finale productiebuild zijn geslaagd. Centrale productiealarmering bestaat nog niet.
+docs/media/trimilix-video-series.md:24:Omdat er momenteel geen zelfstandig logoasset in de repository staat, gebruikt de pilot het woordmerk **Trimilix** als typografische eindkaart. Een later aangeleverd vectorlogo kan zonder wijziging aan het format in de vaste intro en outro worden geplaatst.
+docs/media/trimilix-logo-brief.md:18:| **Merknaam** | Het woordmerk wordt **TRIMILIX** in ruime, geometrische kapitalen; een gemengde-kastversie kan later voor webcopy worden getest. |
+
+# Referenced scripts and files
+docs/cto-baseline-audit.md:42:Er is momenteel één Vitest-bestand dat de logoutcookie controleert. Er zijn geen aantoonbare tests voor objecteigenaarschap, portefeuille-analyse, ETF-beheer, database-interacties of frontendflows. Er zijn ook geen ingestelde coverage-drempels of E2E-tests. De scripts `pnpm check`, `pnpm test` en `pnpm build` zijn aanwezig; linting, dependency audit en secret-scanning zijn nog niet als uniforme kwaliteitsgate gedefinieerd.
+docs/architecture.md:84:`tRPC` is het getypeerde API-contract. Procedures worden geclassificeerd als publiek, aangemeld, beheerder of eigenaarsgebonden. Routers valideren input en delegeren domeinlogica. De huidige router is nog gecentraliseerd; bij verdere groei worden domeinrouters onder `server/routers/` opgesplitst.
+docs/architecture.md:88:Domeinservices bevatten berekeningen en businessregels. `server/portfolioAnalysis.ts` is een eerste voorbeeld, maar moet eigenaarscontext ontvangen en mag geen aanbevelingen als onafhankelijk financieel advies voorstellen. Externe providerlogica komt niet rechtstreeks in routers of UI.
+docs/security-audit-sources.md:7:De ingebouwde `pnpm audit`-route faalde doordat het oudere npm-auditendpoint `/-/npm/v1/security/audits` met HTTP 410 werd uitgefaseerd. Daarom gebruikt dit project een eigen read-only controle tegen de officiële OSV API.
+docs/security-audit-sources.md:15:Volgens de officiële documentatie aanvaardt `querybatch` meerdere package- en versiecombinaties, garandeert de respons dezelfde volgorde als de input en retourneert per package de gevonden kwetsbaarheids-ID’s. OSV vermeldt momenteel geen API-ratelimiet. Het projectscript `scripts/audit-dependencies.mjs` leest uitsluitend de lokaal geïnstalleerde productiepackages via `pnpm list`, verstuurt package- en versiegegevens in batches en faalt gesloten als OSV niet betrouwbaar antwoordt of kwetsbaarheden rapporteert.
+docs/CTO_SPRINT_REVIEW_TEMPLATE.md:58:| Typecheck | `pnpm check` | `[resultaat]` | Beter / Gelijk / Slechter |
+docs/CTO_SPRINT_REVIEW_TEMPLATE.md:59:| Unit- en regressietests | `pnpm test` | `[aantal/resultaat]` | `[trend]` |
+docs/CTO_SPRINT_REVIEW_TEMPLATE.md:60:| Secretscan | `pnpm scan:secrets` | `[resultaat]` | `[trend]` |
+docs/CTO_SPRINT_REVIEW_TEMPLATE.md:61:| Productiedependencyaudit | `pnpm audit:prod` | `[resultaat]` | `[trend]` |
+docs/CTO_SPRINT_REVIEW_TEMPLATE.md:62:| Productiebuild | `pnpm build` | `[resultaat]` | `[trend]` |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:31:| Eigenaarsgebonden portefeuillequeries | Voorkomt cross-user inzage en analyse | `server/db.ts`, `server/routers.ts`, `server/authorization.test.ts` | Geïmplementeerd en lokaal bewezen |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:33:| Uitgesplitste portfolioanalyse | Vermindert verantwoordelijkheid in `db.ts` en lost exportconflict op | `server/portfolioAnalysis.ts`, succesvolle build | Geïmplementeerd en lokaal bewezen |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:34:| Reproduceerbare verify-keten | Eén commando voor typecheck, tests, securityscans en build | `package.json`, `scripts/`, geslaagde `pnpm verify` | Geïmplementeerd en lokaal bewezen |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:55:| Authenticatie en sessies | Bestaande Manus OAuth-flow; logouttest slaagt | `server/auth.logout.test.ts` | Geen uitgebreide callback-, sessieverloop- of browserflowtest | P1 |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:59:| Secrets | Geen high-confidence hardcoded secrets gevonden | `scripts/scan-secrets.mjs`, geslaagde scan | Lokale scanner vervangt geen repository-/platformsecret scanning | P1 |
+docs/sprint-reviews/cto-sprint-audit-2026-07-16.md:60:| Dependencies | OSV meldt geen kwetsbaarheden in 495 geïnstalleerde productiepackageversies | `scripts/audit-dependencies.mjs` | Nieuwe advisories na auditdatum blijven mogelijk; pnpm-hook is onderhoudslast | P1 |
+
+# GitHub and CI metadata

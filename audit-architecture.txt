@@ -1,0 +1,99 @@
+=== MOGELIJKE LAAGOVERSCHRIJDENDE IMPORTS ===
+-- clientverwijzingen naar server of drizzle --
+client/src/lib/trpc.ts:2:import type { AppRouter } from "../../../server/routers";
+-- serververwijzingen naar client --
+server/branding.integration.test.ts:10:    const home = readProjectFile("client/src/pages/Home.tsx");
+server/branding.integration.test.ts:22:    const html = readProjectFile("client/index.html");
+
+=== DIRECTE DATABASETOEGANG BUITEN DB-LAAG ===
+server/routers.ts:5:import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription, getEtfBySymbol, createEtf, listEtfs, getDb } from "./db";
+server/routers.ts:7:import { etfs } from "../drizzle/schema";
+server/routers.ts:74:      const db = await getDb();
+server/portfolioAnalysis.ts:1:import { getDb, getPortfolioWithHoldings, getEtfBySymbol } from "./db";
+server/portfolioAnalysis.ts:4:  const db = await getDb();
+
+=== ROUTES EN AUTHGEBRUIK ===
+client/src/App.tsx:18:      <Route path={"/"} component={Home} />
+client/src/App.tsx:19:      <Route path={"/etf-check"} component={ETFCheck} />
+client/src/App.tsx:20:      <Route path={"/portfolio-checker"} component={PortfolioChecker} />
+client/src/App.tsx:21:      <Route path={"/compounding-simulator"} component={CompoundingSimulator} />
+client/src/App.tsx:22:      <Route path={"/goal-planner"} component={GoalPlanner} />
+client/src/App.tsx:23:      <Route path={"/404"} component={NotFound} />
+client/src/App.tsx:26:      <Route component={NotFound} />
+client/src/App.tsx:45:          <Router />
+client/src/pages/Home.tsx:13:  const { user, isAuthenticated, loading } = useAuth();
+client/src/pages/ETFCheck.tsx:14:  const { isAuthenticated } = useAuth();
+client/src/pages/PortfolioChecker.tsx:12:  const { isAuthenticated } = useAuth();
+server/routers.ts:4:import { adminProcedure, publicProcedure, router, protectedProcedure } from "./_core/trpc";
+server/routers.ts:14:    me: publicProcedure.query(opts => opts.ctx.user),
+server/routers.ts:15:    logout: publicProcedure.mutation(({ ctx }) => {
+server/routers.ts:25:    list: protectedProcedure.query(({ ctx }) =>
+server/routers.ts:28:    get: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(({ ctx, input }) =>
+server/routers.ts:31:    create: protectedProcedure.input(z.object({
+server/routers.ts:38:    analyze: protectedProcedure.input(z.object({ portfolioId: z.number().int().positive() })).query(({ ctx, input }) =>
+server/routers.ts:44:    list: protectedProcedure.query(({ ctx }) =>
+server/routers.ts:50:    get: protectedProcedure.query(({ ctx }) =>
+server/routers.ts:56:    list: protectedProcedure.query(() =>
+server/routers.ts:59:    get: protectedProcedure.input(z.object({ symbol: z.string() })).query(({ input }) =>
+server/routers.ts:73:    count: protectedProcedure.query(async () => {
+
+=== GEBRUIK VAN TEMPLATECOMPONENTEN ===
+-- DashboardLayout --
+client/src/components/DashboardLayout.tsx
+client/src/components/DashboardLayoutSkeleton.tsx
+-- AIChatBox --
+client/src/components/AIChatBox.tsx
+client/src/pages/ComponentShowcase.tsx
+-- Map --
+client/src/components/Map.tsx
+-- ComponentShowcase --
+
+=== FEATURE- EN SERVICESTRUCTUUR ===
+client/src
+client/src/_core
+client/src/_core/hooks
+client/src/components
+client/src/components/ui
+client/src/contexts
+client/src/hooks
+client/src/lib
+client/src/pages
+drizzle
+drizzle/meta
+drizzle/migrations
+server
+server/_core
+server/_core/types
+shared
+shared/_core
+
+=== SERVERIMPORTS BUITEN FRAMEWORKKERN ===
+server/auth.logout.test.ts:1:import { describe, expect, it } from "vitest";
+server/auth.logout.test.ts:2:import { appRouter } from "./routers";
+server/auth.logout.test.ts:3:import { COOKIE_NAME } from "../shared/const";
+server/auth.logout.test.ts:4:import type { TrpcContext } from "./_core/context";
+server/authorization.test.ts:1:import { beforeEach, describe, expect, it, vi } from "vitest";
+server/authorization.test.ts:23:import { appRouter } from "./routers";
+server/authorization.test.ts:2:import type { TrpcContext } from "./_core/context";
+server/branding.integration.test.ts:1:import { readFileSync } from "node:fs";
+server/branding.integration.test.ts:2:import { resolve } from "node:path";
+server/branding.integration.test.ts:3:import { describe, expect, it } from "vitest";
+server/db.ts:1:import { and, eq } from "drizzle-orm";
+server/db.ts:2:import { drizzle } from "drizzle-orm/mysql2";
+server/db.ts:3:import { InsertUser, users, portfolios, holdings, goals, subscriptions, etfs, InsertPortfolio, InsertHolding, InsertGoal, InsertSubscription, InsertEtf } from "../drizzle/schema";
+server/db.ts:4:import { ENV } from './_core/env';
+server/index.ts:1:import express from "express";
+server/index.ts:2:import { createServer } from "http";
+server/index.ts:3:import path from "path";
+server/index.ts:4:import { fileURLToPath } from "url";
+server/portfolioAnalysis.ts:1:import { getDb, getPortfolioWithHoldings, getEtfBySymbol } from "./db";
+server/routers.ts:1:import { COOKIE_NAME } from "@shared/const";
+server/routers.ts:2:import { getSessionCookieOptions } from "./_core/cookies";
+server/routers.ts:3:import { systemRouter } from "./_core/systemRouter";
+server/routers.ts:4:import { adminProcedure, publicProcedure, router, protectedProcedure } from "./_core/trpc";
+server/routers.ts:5:import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription, getEtfBySymbol, createEtf, listEtfs, getDb } from "./db";
+server/routers.ts:6:import { analyzePortfolio } from "./portfolioAnalysis";
+server/routers.ts:7:import { etfs } from "../drizzle/schema";
+server/routers.ts:8:import { count } from "drizzle-orm";
+server/routers.ts:9:import { z } from "zod";
+server/storage.ts:5:import { ENV } from "./_core/env";
