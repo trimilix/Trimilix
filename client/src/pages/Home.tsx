@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, TrendingUp, Wallet, Target, Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
+const TRIMILIX_PRIMARY_LOGO = "/manus-storage/trimilix-logo-primary-on-black_3cfb5a41.svg";
+const TRIMILIX_HORIZONTAL_LOGO = "/manus-storage/trimilix-logo-horizontal-transparent-dark-surfaces_9d8c0275.svg";
+
 export default function Home() {
   const { user, isAuthenticated, loading } = useAuth();
   const [, navigate] = useLocation();
@@ -22,18 +25,25 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
-        <div className="max-w-md text-center">
-          <div className="mb-6">
-            <Wallet className="w-16 h-16 mx-auto text-blue-600" />
-          </div>
-          <h1 className="text-4xl font-bold mb-4">Trimilix</h1>
-          <p className="text-lg text-slate-600 mb-8">
-            Je persoonlijke financiële cockpit. Betere investeringsbeslissingen, vandaag.
+      <div className="relative min-h-screen overflow-hidden bg-[#050505] px-4 text-white">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(244,196,63,0.13),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.025),transparent_45%)]" />
+        <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center py-16 text-center">
+          <img
+            src={TRIMILIX_PRIMARY_LOGO}
+            alt="Trimilix"
+            className="mb-8 h-auto w-full max-w-[360px]"
+          />
+          <p className="mb-8 max-w-xl text-lg leading-relaxed text-zinc-300 sm:text-xl">
+            Je persoonlijke financiële cockpit voor eenvoudige, transparante en gedisciplineerde beslissingen.
           </p>
-          <Button size="lg" onClick={() => startLogin()}>
+          <Button
+            size="lg"
+            onClick={() => startLogin()}
+            className="bg-[#f4c43f] text-black shadow-[0_12px_32px_rgba(244,196,63,0.18)] hover:bg-[#ffd76a]"
+          >
             Inloggen of registreren
           </Button>
+          <p className="mt-6 text-xs uppercase tracking-[0.22em] text-zinc-500">Educatief platform · geen beleggingsadvies</p>
         </div>
       </div>
     );
@@ -42,16 +52,24 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Welkom, {user?.name || "Belegger"}</h1>
-              <p className="text-slate-600 mt-1">Jouw financiële overzicht</p>
+      <div className="border-b border-[#29240f] bg-[#050505] text-white">
+        <div className="mx-auto max-w-7xl px-4 py-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-5">
+              <img
+                src={TRIMILIX_HORIZONTAL_LOGO}
+                alt="Trimilix"
+                className="h-auto w-[164px] shrink-0 sm:w-[190px]"
+              />
+              <div className="hidden h-10 w-px bg-zinc-800 sm:block" aria-hidden="true" />
+              <div>
+                <h1 className="text-xl font-semibold sm:text-2xl">Welkom, {user?.name || "Belegger"}</h1>
+                <p className="mt-1 text-sm text-zinc-400">Jouw financiële overzicht</p>
+              </div>
             </div>
-            <div className="text-sm text-slate-600">
+            <div className="text-sm text-zinc-300">
               {subscription?.plan === "premium" && (
-                <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+                <span className="inline-block rounded-full border border-[#f4c43f]/35 bg-[#f4c43f]/10 px-3 py-1 font-medium text-[#f4c43f]">
                   Premium
                 </span>
               )}

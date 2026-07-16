@@ -66,3 +66,15 @@
 - [x] Documenteer monitoring-SLI’s voor uptime, responstijd, fouten, server- en databasebelasting, API-gebruik, cache-efficiëntie en providerkosten.
 - [x] Leg back-up- en herstelprincipes vast voor database, broncode, configuratie, documentatie en secrets, met duidelijke platformbeperkingen.
 - [x] Maak een herbruikbaar CTO-sprintevaluatiesjabloon en lever een eerste sprintaudit met risico’s, technische schuld, tests en aanbevelingen.
+
+- [ ] Inventariseer de bestaande Trimilix-merkstijl, beschikbare logo-assets en geschikte videotoepassingen voor website en social media.
+- [ ] Definieer een herbruikbaar weekformat met vaste intro/outro, motiontaal, afleveringsstructuur, platformverhoudingen en topicbibliotheek.
+- [ ] Schrijf het script, storyboard, voice-over en schermteksten voor een eerste Trimilix-pilotvideo.
+- [ ] Produceer en controleer een professionele geanimeerde pilotvideo met minimaal één social-mediaformaat en één websitegeschikte variant.
+- [ ] Documenteer de wekelijkse productiewerkwijze, publicatiecopy en vervangbare inhoudsblokken voor toekomstige afleveringen.
+
+- [x] Analyseer het aangeleverde Trimilix-referentielogo op behoudenswaardige elementen, schaalbaarheid, leesbaarheid en motiongeschiktheid.
+- [x] Ontwerp drie onderscheidende Trimilix-logo-richtingen in standaardkwaliteit met gouden T, groeigrafiek en zwart-goud-witte merkbasis.
+- [x] Laat de gebruiker één logorichting kiezen en verwerk gerichte feedback zonder de pilotvideo verder te produceren. Gekozen: A — Refined Legacy; app/favicon gebruikt alleen het beeldmerk.
+- [x] Produceer de gekozen richting als hoofdlogo, beeldmerk, gestapelde toepassing, lichte en donkere variant, SVG, transparante PNG, PDF en faviconformaten. Richting A is als hoofdlogo vastgelegd; app/favicon gebruikt alleen het beeldmerk.
+- [ ] Verwerk het definitieve Trimilix-logo in de website en hervat daarna pas de standaardkwaliteits-preview van de pilotvideo.
