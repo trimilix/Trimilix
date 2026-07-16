@@ -9,12 +9,19 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { validateCriticalRuntimeEnvironment } from "./env";
+import { assertDatabaseIntegrity } from "./databaseIntegrity";
 import {
   configureHttpSecurity,
   configureRequestParsers,
   requestSizeErrorHandler,
 } from "./httpSecurity";
 import { configureRateLimiting } from "./rateLimiting";
+import { logEvent } from "./logger";
+import {
+  expressErrorHandler,
+  registerHealthRoutes,
+  requestObservabilityMiddleware,
+} from "./observability";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -37,6 +44,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 
 async function startServer() {
   validateCriticalRuntimeEnvironment();
+  await assertDatabaseIntegrity();
 
   const app = express();
   const server = createServer(app);
@@ -48,6 +56,8 @@ async function startServer() {
     analyticsEndpoint: process.env.VITE_ANALYTICS_ENDPOINT,
   });
   configureRequestParsers(app);
+  app.use(requestObservabilityMiddleware);
+  registerHealthRoutes(app);
   configureRateLimiting(app);
 
   registerStorageProxy(app);
@@ -58,10 +68,20 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      onError({ error, path, ctx }) {
+        logEvent(
+          error.code === "INTERNAL_SERVER_ERROR" ? "error" : "warn",
+          "trpc_request_failed",
+          {
+            requestId: ctx?.requestId ?? "unknown",
+            procedure: path ?? "unknown",
+            errorCode: error.code,
+            error,
+          },
+        );
+      },
     }),
   );
-
-  app.use(requestSizeErrorHandler);
 
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
@@ -69,19 +89,25 @@ async function startServer() {
     serveStatic(app);
   }
 
+  app.use(requestSizeErrorHandler);
+  app.use(expressErrorHandler);
+
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
+    logEvent("warn", "server_port_fallback", {
+      preferredPort,
+      selectedPort: port,
+    });
   }
 
   server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+    logEvent("info", "server_started", { port });
   });
 }
 
 startServer().catch(error => {
-  console.error("[Startup] Server failed to start:", error);
+  logEvent("error", "server_start_failed", { error });
   process.exitCode = 1;
 });

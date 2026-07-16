@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getTableConfig } from "drizzle-orm/mysql-core";
 
 import {
@@ -9,10 +9,26 @@ import {
   users,
 } from "../drizzle/schema";
 import { executeInTransaction } from "./db";
+import {
+  assertDatabaseIntegrity,
+  EXPECTED_DATABASE_CHECKS,
+} from "./_core/databaseIntegrity";
+import { setLogSinkForTests } from "./_core/logger";
 
 function checkNames(table: Parameters<typeof getTableConfig>[0]): string[] {
   return getTableConfig(table).checks.map(item => item.name).sort();
 }
+
+const integrityLogLines: string[] = [];
+
+beforeEach(() => {
+  integrityLogLines.length = 0;
+  setLogSinkForTests(line => integrityLogLines.push(line));
+});
+
+afterEach(() => {
+  setLogSinkForTests(null);
+});
 
 function indexConfigs(table: Parameters<typeof getTableConfig>[0]) {
   return getTableConfig(table).indexes.map(item => ({
@@ -66,6 +82,58 @@ describe("database integrity schema", () => {
       "etfs_risk_score_range",
       "etfs_ter_nonnegative",
     ]);
+  });
+});
+
+describe("database startup integrity preflight", () => {
+  it("accepts only enabled enforcement with the exact normalized constraint set", async () => {
+    const checks = Array.from(EXPECTED_DATABASE_CHECKS).reverse();
+    const snapshot = await assertDatabaseIntegrity(async () => ({
+      capabilityEnabled: 1,
+      checkNames: checks,
+    }));
+
+    expect(snapshot.capabilityEnabled).toBe(1);
+    expect(snapshot.checkNames).toEqual(Array.from(EXPECTED_DATABASE_CHECKS).sort());
+    expect(integrityLogLines.join("\n")).toContain(
+      "database_integrity_preflight_passed",
+    );
+  });
+
+  it("fails closed when TiDB CHECK enforcement is disabled", async () => {
+    await expect(
+      assertDatabaseIntegrity(async () => ({
+        capabilityEnabled: 0,
+        checkNames: Array.from(EXPECTED_DATABASE_CHECKS),
+      })),
+    ).rejects.toThrow("DatabaseCheckCapabilityDisabled");
+    expect(integrityLogLines.join("\n")).toContain(
+      "check_capability_disabled",
+    );
+  });
+
+  it("fails closed on missing or unexpected constraints", async () => {
+    await expect(
+      assertDatabaseIntegrity(async () => ({
+        capabilityEnabled: 1,
+        checkNames: [
+          ...Array.from(EXPECTED_DATABASE_CHECKS).slice(1),
+          "unexpected_check",
+        ],
+      })),
+    ).rejects.toThrow("DatabaseConstraintSetMismatch");
+
+    const output = integrityLogLines.join("\n");
+    expect(output).toContain("constraint_set_mismatch");
+    expect(output).toContain(EXPECTED_DATABASE_CHECKS[0]);
+    expect(output).toContain("unexpected_check");
+  });
+
+  it("fails within the configured deadline when the integrity probe stalls", async () => {
+    await expect(
+      assertDatabaseIntegrity(() => new Promise(() => undefined), 10),
+    ).rejects.toThrow("DatabaseIntegrityTimeout");
+    expect(integrityLogLines.join("\n")).toContain("probe_failed");
   });
 });
 

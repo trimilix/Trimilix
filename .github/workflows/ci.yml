@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify application and recovery chain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    services:
+      tidb:
+        image: pingcap/tidb:v8.5.3
+        ports:
+          - 4000:4000
+
+    env:
+      CI: "true"
+      NODE_ENV: test
+      DATABASE_URL: mysql://root@127.0.0.1:4000/mysql
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10.4.1
+          run_install: false
+
+      - name: Configure Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22.13.0"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Run unit and integration tests
+        run: pnpm test
+
+      - name: Scan tracked source for secrets
+        run: pnpm security:secrets
+
+      - name: Audit production dependencies
+        run: pnpm security:deps
+
+      - name: Wait for isolated TiDB service
+        run: node scripts/wait-for-database.mjs
+
+      - name: Verify migrations, constraints, rollback and restore
+        run: node scripts/verify-migrations-and-recovery.mjs
+
+      - name: Build production artifacts
+        run: pnpm build

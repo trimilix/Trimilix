@@ -181,9 +181,11 @@ Premium real-time koersen worden via een server-side entitlement geactiveerd. Fr
 
 ## 9. Observability en incidentbeheer
 
-Logs zijn gestructureerd en gebruiken een request- of correlation-ID. Metrics meten technische gezondheid én economische gezondheid: providerrequests, foutpercentage, cache hit ratio, quota, kosten per provider, kosten per gebruiker en kosten per abonnementsplan. Distributed tracing wordt toegevoegd wanneer verzoeken meerdere processen of services doorlopen; voor de huidige monoliet volstaan eerst gerichte timings en correlation-ID’s.
+De Fase A-runtime schrijft één privacyveilige JSON-regel per event naar stdout/stderr. Ieder HTTP-request krijgt een gevalideerde of servergegenereerde `x-request-id`; dezelfde waarde wordt aan de response, tRPC-context en veilige foutlogs gekoppeld. Requestevents bevatten uitsluitend methode, grove routeklasse, status en duur. Headers, cookies, querystrings, request-/responsebodies, tokens, e-mail, openID, volledige IP-adressen en publieke stacktraces zijn uitgesloten. Canonieke logvelden kunnen niet door callerdata worden overschreven.
 
-Alerts zijn actiegericht en bevatten eigenaar, ernst, runbook en escalatiepad. We vermijden alerts op symptomen zonder handelingsperspectief. Kritieke incidenten krijgen een tijdlijn, impact, root cause, mitigatie, herstel en preventieve acties zonder schuldtoewijzing.
+`GET /healthz` is een dependencyvrije livenesscheck. `GET /readyz` voert een read-only databaseprobe uit met een interne deadline van één seconde en retourneert minimale 503-output bij fout of timeout. Interne SLI-tellers bewijzen in tests dat requests, 5xx-responses, readinessfouten, statusklassen en duur worden gevormd; zij zijn niet duurzaam of globaal over autoscaling instances. Centrale retentie, dashboards en automatische paging zijn daarom pas actief nadat de hostinglaag stdout/stderr aan een beveiligde JSON-collector heeft gekoppeld.
+
+Alerts zijn actiegericht en bevatten eigenaar, ernst, runbook en escalatiepad. Voorlopige drempels, incidentstappen, privacyhandelingen en de expliciete collectorbeperking staan in [`OBSERVABILITY_RUNBOOK.md`](OBSERVABILITY_RUNBOOK.md). We vermijden alerts op symptomen zonder handelingsperspectief. Kritieke incidenten krijgen een tijdlijn, impact, root cause, mitigatie, herstel en preventieve acties zonder schuldtoewijzing. Distributed tracing wordt pas toegevoegd wanneer verzoeken meerdere processen of services doorlopen; voor de huidige monoliet volstaan correlation-ID’s en gerichte timings.
 
 ## 10. Kostenbeheer
 
@@ -221,17 +223,14 @@ Een back-up telt pas als betrouwbaar nadat een hersteltest geslaagd is. Hersteld
 
 Iedere bugfix bevat een regressietest. Iedere feature bevat tests op domeinregels, autorisatie en foutpaden. Backendprocedures worden via caller- of servicetests getest; database-intensieve functies krijgen integratietests met een geïsoleerde testdatabase zodra die omgeving beschikbaar is. Frontendtests focussen op kritieke interacties; browservalidatie vervangt geen unit- of integratietests.
 
-De minimale lokale kwaliteitsgate is:
+De minimale lokale kwaliteitsgate is `pnpm verify`. De niet-deployende GitHub Actions-workflow voert daarnaast een frozen-lockfileinstallatie en de geïsoleerde TiDB-migratie-/herstelrehearsal uit. Schema-, constraint-, journal- of herstelwijzigingen worden lokaal ook expliciet tegen een tijdelijke testdatabase gevalideerd:
 
 ```bash
-pnpm check
-pnpm test
-pnpm build
-pnpm audit --audit-level high
-pnpm security:secrets
+pnpm verify
+DATABASE_URL=mysql://... node scripts/verify-migrations-and-recovery.mjs
 ```
 
-Een auditwaarschuwing wordt nooit automatisch gelijkgesteld aan exploiteerbaarheid, maar moet wel worden beoordeeld en gedocumenteerd. Tests mogen geen echte klantgegevens, productiecredentials of betaalgeheimen gebruiken.
+De CI-workflow gebruikt read-only repositorypermissions en ontvangt geen productie- of databasegeheimen. Een auditwaarschuwing wordt nooit automatisch gelijkgesteld aan exploiteerbaarheid, maar moet wel worden beoordeeld en gedocumenteerd. Tests mogen geen echte klantgegevens, productiecredentials of betaalgeheimen gebruiken. De volledige gatevolgorde staat in [`OBSERVABILITY_RUNBOOK.md`](OBSERVABILITY_RUNBOOK.md).
 
 ## 14. Documentatiestandaard
 
@@ -271,7 +270,7 @@ Een afwijking van dit handbook vereist een geregistreerde reden, risico-inschatt
 
 Fase A kiest voor database-afgedwongen kerninvarianten, gerichte indexen en atomische writes. Applicatievalidatie blijft bestaan voor bruikbare foutmeldingen, maar vormt niet de laatste verdedigingslaag. De huidige schema-invarianten omvatten negen benoemde CHECK-constraints, een unieke business-key op `(portfolioId, etfTicker)`, query-indexen op portfolio- en gebruikersrelaties, een atomische subscription-upsert en een herbruikbare transactiewrapper.
 
-TiDB behandelt CHECK-enforcement als een globale capability. Runtime- of migratiebewijs is daarom ongeldig wanneer `@@GLOBAL.tidb_enable_check_constraint` niet `1` is, wanneer één van de negen namen ontbreekt of wanneer bestaande data een invariant schendt. In elk van deze gevallen stopt de release of herstelprocedure **fail-closed**; journalrecords mogen nooit worden gebruikt om ontbrekende schema-effecten te verbergen.[4] [5]
+TiDB behandelt CHECK-enforcement als een globale capability. De runtime voert daarom vóór het openen van de luisterpoort een read-only startup-preflight uit met een deadline van tien seconden. Deze controle vereist `@@GLOBAL.tidb_enable_check_constraint = 1` en exact de negen benoemde CHECK-constraints; een onbereikbare database, timeout, ontbrekende of onverwachte constraint stopt de server **fail-closed** en schrijft uitsluitend een veilige redenclassificatie. Migratie- en CI-rehearsals valideren dezelfde invariant plus bestaande data. Journalrecords mogen nooit worden gebruikt om ontbrekende schema-effecten te verbergen.[4] [5]
 
 ### 18.2 Nullable CHECK-contract
 

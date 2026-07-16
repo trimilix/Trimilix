@@ -19,7 +19,7 @@ Trimilix is een fullstack modulaire monoliet met React, tRPC, Express, Drizzle e
 | Sessietoken | `server/_core/sdk.ts` | Maximaal zeven dagen, claimgebonden en alleen via HttpOnly-cookie |
 | Sessierevocatie | `server/_core/sessionRevocation.ts` | Adaptercontract; huidige strategie vergelijkt `sessionVersion` |
 | Storage | `server/_core/storagePolicy.ts` en `storageProxy.ts` | Publieke allowlist of geauthenticeerde eigenaarnamespace |
-| Database | `drizzle/schema.ts` en gecommitteerde migraties | Schema-first, beoordeelde SQL en gecontroleerde toepassing |
+| Database | `drizzle/schema.ts`, gecommitteerde migraties en `server/_core/databaseIntegrity.ts` | Schema-first, beoordeelde SQL, gecontroleerde toepassing en fail-closed startup-preflight |
 
 ## 3. Sessiebesluit ADR-2026-07-16-B
 
@@ -64,7 +64,7 @@ De lokale limiter is niet globaal over meerdere autoscaling instances. Een gedee
 
 ### 5.1 Actuele live toestand
 
-De projectdatabase heeft `@@GLOBAL.tidb_enable_check_constraint = 1`, negen benoemde CHECK-constraints, vier gerichte indexen en geen aangetroffen integriteitsschendingen voor de afgedwongen domeinregels. De officiële Drizzle-journalprefix bevat migraties `0000`–`0008` met de lokale SHA-256-hashes en timestamps. De ETF-constraints zijn in de TiDB-catalogus gecanoniseerd als `ter >= 0` en `riskScore BETWEEN 1 AND 5`; `NULL` blijft geldig.
+De projectdatabase heeft `@@GLOBAL.tidb_enable_check_constraint = 1`, negen benoemde CHECK-constraints, vier gerichte indexen en geen aangetroffen integriteitsschendingen voor de afgedwongen domeinregels. De runtime verifieert capability en exact deze negen namen read-only binnen tien seconden vóór zij de luisterpoort opent; probe-uitval, timeout of constraintdrift stopt startup fail-closed met alleen een veilige redenclassificatie. De officiële Drizzle-journalprefix bevat migraties `0000`–`0008` met de lokale SHA-256-hashes en timestamps. De ETF-constraints zijn in de TiDB-catalogus gecanoniseerd als `ter >= 0` en `riskScore BETWEEN 1 AND 5`; `NULL` blijft geldig.
 
 | Onderdeel | Status en bewijs |
 |---|---|
@@ -101,11 +101,29 @@ De geïsoleerde rehearsal bewijst schema- en datareproduceerbaarheid, niet de be
 
 De huidige subscriptionwrite gebruikt één atomische upsert en samengestelde writes kunnen de transactiewrapper gebruiken. Er bestaat bewust nog geen generieke idempotencytabel. Die wordt verplicht vóór Stripe-checkout, payments, webhooks, brokerorders, geldachtige mutaties, at-least-once queues of andere kritieke retrybare operaties. De toekomstige oplossing moet keyscope, payloadhash, conflictgedrag, in-progress locking, replayresultaat, TTL/cleanup en gelijktijdigheidstests omvatten; idempotencyrecord en businesswrite moeten waar mogelijk in dezelfde transactie vallen.
 
-## 6. Verificatiebewijs in Fase A
+## 6. CI, health en observability
 
-De gerichte regressies voor sessies, logout, browseropslag en rate limiting staan in `server/sessionSecurity.test.ts`, `server/auth.logout.test.ts`, `client/src/lib/authStorage.test.ts` en `server/rateLimiting.test.ts`. Databasebewijs staat in `server/databaseIntegrity.test.ts`, `scripts/verify-live-schema-equivalence.mjs`, `scripts/apply-tidb-check-remediation.mjs`, `scripts/reconcile-drizzle-journal.mjs`, `scripts/inspect-live-migration-state.mjs` en `scripts/verify-migrations-and-recovery.mjs`. De testconfiguratie omvat zowel `server/**/*.test.ts` als `client/src/**/*.test.ts`. Het definitieve aantal, de volledige buildgate en het productie-go/no-go-oordeel worden na afronding vastgelegd in `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md`.
+Iedere push en pull request doorloopt `.github/workflows/ci.yml` met uitsluitend `contents: read`. De workflow gebruikt immutable action-SHA’s, Node 22.13.0, pnpm 10.4.1, een frozen lockfile en geen productiegeheimen. Zij voert typecheck, volledige Vitest-suite, secret-scan, productie-dependencyaudit, een geïsoleerde TiDB 8.5.3-migratie-/rollback-/restore-rehearsal en de productiebuild uit. De workflow deployt niet; een groen resultaat is een releasevoorwaarde maar geen productiepublicatie.
 
-## 7. Overdrachtswaarschuwingen
+| Operationele grens | Huidig contract |
+|---|---|
+| Request-ID | Gevalideerde upstreamwaarde of server-UUID; responseheader, tRPC-context en foutlogs delen dezelfde waarde |
+| Logging | JSON-lines naar stdout/stderr; alleen methode, routeklasse, status, duur, request-ID en veilige foutclassificatie |
+| Liveness | `GET /healthz`; dependencyvrij en 200 zolang het proces requests verwerkt |
+| Startup database-integriteit | Vóór luisteren: capability en exacte negen CHECK-namen, read-only deadline tien seconden, fail-closed bij afwijking |
+| Readiness | `GET /readyz`; read-only `SELECT 1`, interne deadline één seconde, minimale 503 bij fout of timeout |
+| Publieke fouten | Express en onverwachte tRPC-fouten geven generieke details; productie-stacktraces worden verwijderd |
+| Centrale monitoring | Nog niet geactiveerd; de hostinglaag moet de eventstream verzamelen, bewaren en aan dashboards/alerts koppelen |
+
+Gebruik [`OBSERVABILITY_RUNBOOK.md`](OBSERVABILITY_RUNBOOK.md) voor SLI-definities, voorlopige alertdrempels, incidentdiagnose en privacyrespons. Bij een klant-500 is de enige benodigde correlatie-invoer het tijdstip en de `x-request-id`; vraag nooit om sessiecookies, JWT’s of volledige financiële payloads. Configureer `/healthz` als liveness en `/readyz` als readiness. Een readinessfout mag een instance uit verkeer nemen, maar mag niet zonder aanvullend bewijs als reden voor een restartlus dienen.
+
+De in-process SLI-tellers zijn uitsluitend testbare signaalvorming en verdwijnen bij restart; zij zijn niet globaal over autoscaling instances. Tot een externe collector en alertservice zijn geconfigureerd, mag de status daarom niet als volledig operationeel gemonitord worden omschreven. Alertregels moeten eigenaar, escalatiekanaal, minimumvolume en runbook bevatten.
+
+## 7. Verificatiebewijs in Fase A
+
+De gerichte regressies voor sessies, logout, browseropslag en rate limiting staan in `server/sessionSecurity.test.ts`, `server/auth.logout.test.ts`, `client/src/lib/authStorage.test.ts` en `server/rateLimiting.test.ts`. Observabilitybewijs staat in `server/observability.test.ts`, `server/_core/logger.ts`, `server/_core/observability.ts` en `.github/workflows/ci.yml`. Databasebewijs staat in `server/databaseIntegrity.test.ts`, `scripts/verify-live-schema-equivalence.mjs`, `scripts/apply-tidb-check-remediation.mjs`, `scripts/reconcile-drizzle-journal.mjs`, `scripts/inspect-live-migration-state.mjs` en `scripts/verify-migrations-and-recovery.mjs`. De testconfiguratie omvat zowel `server/**/*.test.ts` als `client/src/**/*.test.ts`. Het definitieve aantal, de volledige buildgate en het productie-go/no-go-oordeel worden na afronding vastgelegd in `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md`.
+
+## 8. Overdrachtswaarschuwingen
 
 Geheimen mogen uitsluitend via de projectsecretlaag worden beheerd. Auth- en limiterlogs mogen geen JWT, openID, volledig IP-adres of volledig gebruikersprofiel bevatten. Verleng de sessieduur niet lokaal; iedere wijziging aan levensduur, revocatiemodel, cookiebeleid of tokenclaims vereist een securityreview, regressietests en een bijgewerkt ADR. Een toekomstige apparaat-sessieimplementatie mag geen ruwe JWT’s opslaan.
 

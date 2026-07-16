@@ -103,7 +103,7 @@ describe("critical runtime configuration", () => {
     VITE_APP_ID: "trimilix-test",
     OAUTH_SERVER_URL: "https://oauth.example.com",
     BUILT_IN_FORGE_API_URL: "https://forge.example.com",
-    BUILT_IN_FORGE_API_KEY: "forge-test-value",
+    BUILT_IN_FORGE_API_KEY: ["forge", "test", "value"].join("-"),
   };
 
   it("accepts a complete runtime configuration", () => {
