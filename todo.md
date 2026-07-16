@@ -92,3 +92,23 @@
 - [x] Beoordelen of het platform veilig en verantwoord verder kan worden uitgebouwd.
 - [x] Senior Software Architect-rapport opleveren met sterke punten, absolute verbeterpunten, latere verbeteringen, technische schuld, risico's en aanbevelingen.
 - [x] Alle nieuwe functionaliteitsbouw blokkeren totdat de gebruiker het auditrapport expliciet heeft goedgekeurd.
+
+## Fase 8: Goedgekeurde Fase A-stabilisatiesprint
+- [x] **Security — HTTP-baseline:** Voeg CSP, HSTS in productie, framebeperking, `X-Content-Type-Options`, Referrer-Policy en Permissions-Policy toe; verwijder `X-Powered-By`; dek headers af met Vitest.
+- [x] **Security — Requestgrenzen:** Verlaag de standaard JSON/form-bodylimiet van 50 MB naar een onderbouwde kleine limiet en test oversized requests.
+- [x] **Security — Runtimeconfiguratie:** Valideer kritieke database-, JWT-, OAuth- en storageconfiguratie fail-fast met negatieve tests.
+- [ ] **Security — Storageautorisatie:** Beperk de storageproxy tot expliciet toegestane publieke assets en bescherm private objecten met authenticatie, eigenaar-/namespacecontrole en tests.
+- [ ] **Security — Rate limiting:** Implementeer routeklasse-specifieke limieten voor OAuth, tRPC en storage, inclusief relevante headers, foutresponsen, metrics/logging en tests.
+- [ ] **Security — Sessies:** Verkort en documenteer sessieduur, valideer `iss`/`aud`/app-binding waar compatibel, en voeg een expliciete revocatie-/rotatiestrategie en regressietests toe.
+- [ ] **Privacy — Browseropslag:** Verwijder productie-bearertokens en volledige gebruikersprofielen uit JavaScript-toegankelijke webstorage; wis resterende authdata bij logout; voeg tests toe.
+- [ ] **Betrouwbaarheid — Financiële kern:** Isoleer en test samengestelde interest, maandinleg, afronding, grenswaarden, risicoscore, ontbrekende ETF-data en bekende referentiecases.
+- [ ] **Database — Migratiereproduceerbaarheid:** Bewijs dat een lege database via de gecommitteerde migraties naar het actuele schema kan worden opgebouwd en leg de verificatie vast.
+- [ ] **Database — Integriteit en transacties:** Voeg benodigde constraints en transacties toe voor financiële mutaties zonder bestaande data te beschadigen; genereer, beoordeel en pas migraties gecontroleerd toe.
+- [ ] **Database — Herstelbewijs:** Voer een veilige, geïsoleerde restore-/hersteltest uit voor zover het platform dit toelaat en documenteer RPO/RTO, bewijs en resterende platformbeperkingen.
+- [ ] **Operational readiness — CI-gate:** Voeg een afgedwongen workflow toe voor typecheck, tests, secret-scan, dependency-audit, build en migratiecontrole.
+- [ ] **Operational readiness — Observability:** Implementeer health/readiness, request-ID's, gestructureerde logging, centrale foutregistratiegrenzen en testbare SLI-signalen zonder gevoelige data te loggen.
+- [ ] **Performance — Frontendbundel:** Implementeer route-lazy-loading en een bundlebudget; verwijder aantoonbaar ongebruikte runtime-imports en bewijs de verbetering met buildmetingen.
+- [ ] **Performance — Querypatronen:** Voeg cursor-/limietpaginering en batchqueries toe aan onbegrensde of N+1-gevoelige portfolio-/ETF-flows; voeg tests en querymetingen toe.
+- [ ] **Architectuur — Verouderde runtime:** Verwijder of archiveer het ongebruikte `server/index.ts` en borg één ondubbelzinnig productie-entrypoint.
+- [ ] **Verificatie:** Voer de volledige kwaliteitsketen, securityregressies, productiebuild, runtimechecks en relevante desktop-/mobielcontroles uit en leg bewijs vast.
+- [ ] **Rapportage:** Lever `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md` op met opgeloste P0/P1-punten, testbewijs, securitybewijs, performancebewijs, resterende risico's en een nieuw go/no-go-oordeel.

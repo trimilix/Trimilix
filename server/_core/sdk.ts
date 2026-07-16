@@ -347,4 +347,13 @@ function buildCronUser(
   } as AuthenticatedUser;
 }
 
-export const sdk = new SDKServer();
+let sdkInstance: SDKServer | undefined;
+
+/**
+ * Lazily creates the OAuth SDK after application startup has validated all
+ * critical runtime configuration. Importing this module is side-effect free.
+ */
+export function getSdk(): SDKServer {
+  sdkInstance ??= new SDKServer();
+  return sdkInstance;
+}

@@ -8,6 +8,12 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { validateCriticalRuntimeEnvironment } from "./env";
+import {
+  configureHttpSecurity,
+  configureRequestParsers,
+  requestSizeErrorHandler,
+} from "./httpSecurity";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -29,22 +35,32 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  validateCriticalRuntimeEnvironment();
+
   const app = express();
   const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  const isProduction = process.env.NODE_ENV === "production";
+
+  app.set("trust proxy", 1);
+  configureHttpSecurity(app, {
+    isProduction,
+    analyticsEndpoint: process.env.VITE_ANALYTICS_ENDPOINT,
+  });
+  configureRequestParsers(app);
+
   registerStorageProxy(app);
   registerOAuthRoutes(app);
-  // tRPC API
+
   app.use(
     "/api/trpc",
     createExpressMiddleware({
       router: appRouter,
       createContext,
-    })
+    }),
   );
-  // development mode uses Vite, production mode uses static files
+
+  app.use(requestSizeErrorHandler);
+
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
@@ -63,4 +79,7 @@ async function startServer() {
   });
 }
 
-startServer().catch(console.error);
+startServer().catch(error => {
+  console.error("[Startup] Server failed to start:", error);
+  process.exitCode = 1;
+});
