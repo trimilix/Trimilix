@@ -27,9 +27,13 @@ describe("CI workflow contract", () => {
 
   it("runs every release gate with locked tooling and no production secrets", async () => {
     const contents = await workflow();
+    const packageJson = JSON.parse(
+      await readFile(path.join(process.cwd(), "package.json"), "utf8"),
+    ) as { packageManager?: string };
 
     expect(contents).toContain("node-version: \"22.13.0\"");
-    expect(contents).toContain("version: 10.4.1");
+    expect(packageJson.packageManager).toMatch(/^pnpm@10\.4\.1\+/);
+    expect(contents).not.toMatch(/^\s+version:\s+10\.4\.1\s*$/m);
     expect(contents).toContain("pnpm install --frozen-lockfile");
     expect(contents).toContain("pnpm check");
     expect(contents).toContain("pnpm test");

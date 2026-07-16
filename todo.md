@@ -166,6 +166,7 @@
 
 - [x] Maak vóór externe GitHub-writes een veilige lokale baseline: gitstatus/remotes, GitHub-auth, grootbestanden, secrets en volledige kwaliteitsgate gecontroleerd; checksum-gevalideerde git-bundle, bronarchief en werkboompatch buiten de projectmap vastgelegd.
 - [ ] Maak of koppel een veilige GitHub-repository, push de volledige gescande codebase, borg duidelijke mappenstructuur, README, LICENSE en `.gitignore`, en maak tag/release `v0.1-beta` zonder secrets of runtimeartefacten.
+- [ ] Verwijder de dubbele pnpm-versiebron uit GitHub Actions, verifieer de volledige publieke CI-keten groen en laat `v0.1-beta` naar de herstelde releasecommit wijzen.
 - [ ] Voer een volledige audit uit op bugs, security, performance, responsive design, accessibility, SEO, foutafhandeling, type safety, duplicatie en onderhoudbaarheid; rangschik bevindingen op P0/P1/P2/P3.
 - [ ] Herstel alle concrete auditbevindingen binnen de bestaande Trimilix-functies en voeg voor iedere codefix passende regressietests toe.
 - [ ] Valideer Homepage, Registratie/Login, Dashboard, Portfolio's, ETF Checker, Portfolio Checker, Compounding Simulator en Doelplanner end-to-end; documenteer eventuele auth- of databeperkingen zonder demo-inhoud te fabriceren.
