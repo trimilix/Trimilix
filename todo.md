@@ -1,11 +1,13 @@
 # Trimilix MVP — Todo
 
+> **Statuslegenda:** `[x]` betekent aantoonbaar voltooid. Regels met `[ ]` en **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD** zijn bewust buiten Fase A gehouden en blijven open in [`PRODUCT_BACKLOG.md`](PRODUCT_BACKLOG.md); zij zijn nadrukkelijk niet feature-complete.
+
 ## Fase 1: Fundamenten
 
 - [x] Gebruikersauthenticatie (Manus OAuth)
 - [x] Persoonlijk Dashboard™
 - [x] Database-schema voor portefeuilles, ETF's, gebruikersdata
-- [ ] Onboarding-flow
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Onboarding-flow. Zie `PRODUCT_BACKLOG.md`.
 
 ## Fase 2: Kernfuncties
 
@@ -16,8 +18,8 @@
 
 ## Fase 3: Premium & Betalingen
 
-- [ ] Stripe-integratie
-- [ ] Premium-abonnement (checkout)
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Stripe-integratie. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Premium-abonnement (checkout). Zie `PRODUCT_BACKLOG.md`.
 
 ## Fase 4: Engineering Standaarden & Verfijning
 
@@ -26,39 +28,39 @@
 - [x] **Verifieer ETF Seeding:** Controleer of de `etfs` tabel daadwerkelijk gevuld is met de geseede data via een tRPC-call of directe DB-query.
 - [x] **ETF Check™ Empty State:** Voeg een expliciete empty state toe voor ETF-zoekresultaten wanneer geen ETFs gevonden worden of de catalogus leeg is.
 - [x] **Portfolio Checker™:** Gebruikt echte portefeuille- en holdingsdata via tRPC.
-- [ ] **Portfolio Checker™ Backend Logica:** Verplaats risico-, spreidings- en aanbevelingsberekeningen naar backendprocedures op basis van echte holdings/ETF-data (gedeeltelijk geïmplementeerd met mock data, `analyzePortfolio` duplicaatfout).
+- [ ] **OVERGEDRAGEN — RESTANT NIET GEÏMPLEMENTEERD:** Portfolio Checker™ risico en spreiding zijn data-gedreven afgerond; dynamische aanbevelingsregels blijven open in `PRODUCT_BACKLOG.md` en worden niet gefabriceerd.
 - [x] **Portfolio Checker™ Frontend State:** Voeg loading-, error- en empty-state handling toe voor het laden van een geselecteerde portefeuille (`selectedPortfolio`).
 - [x] **Portfolio Checker™ Backend Logica:** Vervang mock `riskProfile` door echte backend-berekening op basis van holdings/ETF-kenmerken (afgerond in Fase A met waardegewogen holdingsdata en fail-closed ETF-risicoscores).
-- [ ] **Portfolio Checker™ Backend Logica:** Vul de `etfs` seed-data met echte `riskScore`-waarden en documenteer de risicomethodiek per ETF (documentatie ontbreekt).
-- [ ] **Portfolio Checker™ Backend Logica:** Documenteer in `ENGINEERING_HANDBOOK.md` of aparte docs hoe `riskScore` per ETF wordt bepaald, inclusief schaal, criteria en voorbeelden voor de geseede ETF’s.
-- [ ] **Portfolio Checker™ Backend Logica:** Onderbouw of valideer de geseede `riskScore`-waarden met een expliciete bron/methodiek in seed-data comments of documentatie.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Valideer/vervang geseede ETF-risicoscores en documenteer de methodiek per ETF. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Documenteer per geseede ETF schaal, criteria, voorbeelden en herbeoordeling van `riskScore`. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Onderbouw/valideer geseede `riskScore`-waarden met een goedgekeurde bron en methodiek. Zie `PRODUCT_BACKLOG.md`.
 - [x] **Portfolio Checker™ Backend Logica:** Vervang de placeholder `|| 3`-fallback door een echte, data-gedreven risicobepaling of expliciete validatiefout wanneer risicodata ontbreekt.
 - [x] **Portfolio Checker™ Backend Logica:** Los de huidige dev-server fout met dubbele export van `analyzePortfolio` in `server/db.ts` op voordat verdere portfolio-logica als afgerond wordt gemarkeerd.
-- [ ] **Portfolio Checker™ Backend Logica:** Genereer aanbevelingen dynamisch vanuit analysemethoden en echte portefeuilledata in plaats van hardcoded teksten.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Dynamische portefeuilleaanbevelingen na methodiek-, claim- en productgoedkeuring. Zie `PRODUCT_BACKLOG.md`.
 - [x] **Portfolio Checker™ Backend Logica:** Voeg tests toe voor `analyzePortfolio` zodat risico-, spreidings- en het expliciet ontbreken van mockaanbevelingen verifieerbaar zijn.
 - [x] **Portfolio Checker™ Dynamische UI:** Verwijder hardcoded analyseblokken en vervang deze door dynamische, data-gedreven output uit tRPC/backendlogica.
 - [x] **Compounding Simulator™:** Verplaats de compounding-berekening naar goed geteste deterministische kernlogica met invoervalidatie en expliciete foutafhandeling.
-- [ ] **Doelplanner™:** Koppel aan echte goals-data via tRPC + database (lijst, aanmaken, verwijderen/bijwerken) in plaats van `mockGoals` en lokale-only state.
-- [ ] **Doelplanner™:** Voeg loading/error/empty states en invoervalidatie toe voor de Doelplanner™-flow, en gebruik de bestaande goals-tabel daadwerkelijk in procedures/queries.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Doelplanner koppelen aan echte goals-data en CRUD-procedures. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Doelplanner loading/error/empty states, validatie en goals-tabelgebruik. Zie `PRODUCT_BACKLOG.md`.
 - [x] **Database Seeding:** Vul de `etfs` tabel met een beperkte set populaire ETF's. (Geverifieerd: 5 ETF's geseed)
 - [x] **Beveiliging:** Implementeer inputvalidatie met Zod voor alle tRPC-procedures (voor procedures met input). Procedures zonder input vereisen geen Zod-validatie. (Geverifieerd)
 - [x] **Code Kwaliteit:** Zorg voor unit tests voor de huidige kritieke bedrijfslogica, inclusief compounding en portefeuilleanalyse.
 - [x] **Architectuur:** Documenteer de architectuur in `/docs/architecture.md` (gebruik Mermaid of D2).
 - [x] **Observability:** Implementeer privacyveilige gestructureerde logging voor backend-acties, request-ID-correlatie en foutgrenzen.
-- [ ] **Data Integriteit:** Zorg voor transacties en idempotentie voor financiële operaties.
+- [ ] **OVERGEDRAGEN — RESTANT NIET GEÏMPLEMENTEERD:** Transactiewrapper en atomische writes zijn afgerond; generieke request-idempotency blijft verplicht bij toekomstige betalingen/webhooks. Zie `PRODUCT_BACKLOG.md`.
 
 ## Fase 5: Verdere Ontwikkeling
 
-- [ ] Academy-content
-- [ ] Broker Match™
-- [ ] Fiscale Module™
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Academy-content. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Broker Match™. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Fiscale Module™. Zie `PRODUCT_BACKLOG.md`.
 
 ## Fase 6: Testen & Oplevering
 
-- [ ] Uitgebreide integratie- en E2E-tests.
-- [ ] Prestatie-optimalisatie en load testing.
-- [ ] Documentatie finaliseren (API, Database, Deployment).
-- [ ] Release checklist doorlopen.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Volledige geauthenticeerde browser-E2E-suite; Fase A heeft wel 98 regressies en runtime-/visuele smokes. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — RESTANT NIET GEÏMPLEMENTEERD:** Productieachtige load/cold-start/Web Vitals-metingen; Fase A heeft bundlebudgetten, queryplannen en een lokale health/readinessbaseline. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — RESTANT NIET GEÏMPLEMENTEERD:** Centrale API-/database-/deploymentdocumentindex vóór teamuitbreiding; Fase A-runbooks, audit en handover zijn afgerond. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Brede productiereleasechecklist na externe monitoring, back-upretentie, RPO/RTO en branchbescherming. Zie `PRODUCT_BACKLOG.md`.
 
 - [x] **Portfolio Checker™ Backend Logica:** Herstart de dev-server na de laatste `server/db.ts`-wijzigingen en verifieer expliciet dat `analyzePortfolio` correct uit `./db` wordt geëxporteerd zonder runtime import/export-fouten.
 - [x] **Portfolio Checker™ Backend Logica:** Run een schone typecheck/start-validatie voor portfolio-routes en leg vast dat de `portfolio.analyze` procedure zonder serverfouten laadt.
@@ -73,11 +75,11 @@
 - [x] Leg back-up- en herstelprincipes vast voor database, broncode, configuratie, documentatie en secrets, met duidelijke platformbeperkingen.
 - [x] Maak een herbruikbaar CTO-sprintevaluatiesjabloon en lever een eerste sprintaudit met risico’s, technische schuld, tests en aanbevelingen.
 
-- [ ] Inventariseer de bestaande Trimilix-merkstijl, beschikbare logo-assets en geschikte videotoepassingen voor website en social media.
-- [ ] Definieer een herbruikbaar weekformat met vaste intro/outro, motiontaal, afleveringsstructuur, platformverhoudingen en topicbibliotheek.
-- [ ] Schrijf het script, storyboard, voice-over en schermteksten voor een eerste Trimilix-pilotvideo.
-- [ ] Produceer en controleer een professionele geanimeerde pilotvideo met minimaal één social-mediaformaat en één websitegeschikte variant.
-- [ ] Documenteer de wekelijkse productiewerkwijze, publicatiecopy en vervangbare inhoudsblokken voor toekomstige afleveringen.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Inventariseer merkstijl, assets en videotoepassingen. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Definieer het wekelijkse videoformat. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Schrijf script, storyboard, voice-over en schermteksten voor een pilotvideo. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Produceer en controleer de geanimeerde pilotvideo en varianten. Zie `PRODUCT_BACKLOG.md`.
+- [ ] **OVERGEDRAGEN — NIET GEÏMPLEMENTEERD:** Documenteer videoproductiewerkwijze, publicatiecopy en vervangbare inhoud. Zie `PRODUCT_BACKLOG.md`.
 
 - [x] Analyseer het aangeleverde Trimilix-referentielogo op behoudenswaardige elementen, schaalbaarheid, leesbaarheid en motiongeschiktheid.
 - [x] Ontwerp drie onderscheidende Trimilix-logo-richtingen in standaardkwaliteit met gouden T, groeigrafiek en zwart-goud-witte merkbasis.
