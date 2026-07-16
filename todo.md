@@ -161,3 +161,17 @@
 - [x] Beoordeel de huidige homepage op Trimilix-merkidentiteit, kernpropositie, productspecifieke navigatie en afwezigheid van generieke bedrijfswebsitecopy; beoordeling geslaagd op browserweergave én broncode.
 - [x] Vervang de homepage alleen indien de beoordeling faalt; niet uitgevoerd omdat de bestaande homepage aantoonbaar al de echte Trimilix-authgrens en financiële cockpit is en geen generieke bedrijfswebsite.
 - [x] Valideer de uiteindelijke homepage en kernroutes op desktop en mobiel; 98 tests, typecheck, security-/dependency-audits, productiebuild, bundlebudgetten en runtime-smokes zijn groen en de tijdelijke demo-URL is gereed.
+
+## Professionele publieke beta — nieuwe opdracht
+
+- [x] Maak vóór externe GitHub-writes een veilige lokale baseline: gitstatus/remotes, GitHub-auth, grootbestanden, secrets en volledige kwaliteitsgate gecontroleerd; checksum-gevalideerde git-bundle, bronarchief en werkboompatch buiten de projectmap vastgelegd.
+- [ ] Maak of koppel een veilige GitHub-repository, push de volledige gescande codebase, borg duidelijke mappenstructuur, README, LICENSE en `.gitignore`, en maak tag/release `v0.1-beta` zonder secrets of runtimeartefacten.
+- [ ] Voer een volledige audit uit op bugs, security, performance, responsive design, accessibility, SEO, foutafhandeling, type safety, duplicatie en onderhoudbaarheid; rangschik bevindingen op P0/P1/P2/P3.
+- [ ] Herstel alle concrete auditbevindingen binnen de bestaande Trimilix-functies en voeg voor iedere codefix passende regressietests toe.
+- [ ] Valideer Homepage, Registratie/Login, Dashboard, Portfolio's, ETF Checker, Portfolio Checker, Compounding Simulator en Doelplanner end-to-end; documenteer eventuele auth- of databeperkingen zonder demo-inhoud te fabriceren.
+- [ ] Test de publieke beta op desktop, tablet en mobiel, inclusief keyboardbediening, focus, contrast, semantiek, responsive overflow en kern-SEOmetadata.
+- [ ] Maak `ROADMAP.md` met Fase 2 (Academy, Brokervergelijker, BE/NL-fiscaliteit, ETF-gids, educatie), Fase 3 (geavanceerde Portfolio Checker, Detri ETF Check, AI Coach, watchlists, alerts, nieuws) en Fase 4 (premium, betalingen, mobiele app, API-koppelingen).
+- [ ] Maak of converteer `TODO.md` naar één professionele, afvinkbare backlog met prioriteit, fase, status, afhankelijkheden en duidelijke scheiding tussen beta-blockers en latere productontwikkeling.
+- [ ] Finaliseer productiedocumentatie voor schaalbare architectuur, veilige authenticatie, back-ups/herstel, logging, monitoring, deployment, secrets en operationele incidentrespons.
+- [ ] Voer de volledige finale kwaliteitsketen, migratie-/herstelvalidatie, runtime-smokes en cross-device controles uit en archiveer bewijs.
+- [ ] Synchroniseer alle finale wijzigingen naar GitHub en lever een publiek-beta go/no-go-oordeel met resterende risico's en vervolgstappen.
