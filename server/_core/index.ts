@@ -14,6 +14,7 @@ import {
   configureRequestParsers,
   requestSizeErrorHandler,
 } from "./httpSecurity";
+import { configureRateLimiting } from "./rateLimiting";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -47,6 +48,7 @@ async function startServer() {
     analyticsEndpoint: process.env.VITE_ANALYTICS_ENDPOINT,
   });
   configureRequestParsers(app);
+  configureRateLimiting(app);
 
   registerStorageProxy(app);
   registerOAuthRoutes(app);

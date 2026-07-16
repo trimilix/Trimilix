@@ -75,6 +75,22 @@ Trimilix gebruikt de OWASP Top 10 en OWASP ASVS als controlekader en NIST SSDF a
 
 Authenticatie gebruikt het platform-OAuthmechanisme en server-side gevalideerde sessies. Sessiecookies moeten `HttpOnly`, `Secure` en een passende `SameSite`-instelling gebruiken. Login-, logout- en callbackflows worden getest op replay, state-validatie, open redirects en sessiefixatie. Gevoelige acties mogen nooit uitsluitend op frontendstatus vertrouwen.
 
+#### 5.1.1 Sessiebesluit — ADR-2026-07-16-B
+
+Trimilix gebruikt in Fase A een maximaal zeven dagen geldige, met HS256 ondertekende JWT die uitsluitend via de `HttpOnly`-sessiecookie wordt geaccepteerd. De token bevat en valideert minimaal `iss`, `aud`, `sub`, `iat`, `nbf`, `exp`, `jti`, `appId`, `openId` en `sessionVersion`. Issuer, audience, subject en app-ID moeten overeenkomen met de actieve applicatie; de afstand tussen `iat` en `exp` mag de centrale zeven-dagenlimiet niet overschrijden. De frontend bewaart geen sessietoken of volledig gebruikersprofiel in `localStorage` of `sessionStorage`.
+
+Server-side revocatie gebruikt het interne `SessionRevocationAdapter`-contract. De Fase A-adapter vergelijkt de JWT-versie met de monotone `users.sessionVersion`. Logout wist de cookie en verhoogt deze versie atomisch, waardoor alle eerder uitgegeven sessies van die gebruiker ongeldig worden. Deze beperking — logout op alle apparaten — is bewust geaccepteerd omdat zij echte intrekking biedt zonder voortijdig een sessieregister, cleanupjobs en extra privacydata te introduceren.
+
+| Eigenschap | Fase A-beslissing |
+|---|---|
+| **Levensduur** | Maximaal zeven dagen; JWT en cookie gebruiken dezelfde gedeelde constante |
+| **Transport** | Alleen `HttpOnly`-cookie; geen productie-bearerfallback uit JavaScript-opslag |
+| **Binding** | Applicatie, issuer, audience, subject, unieke `jti` en user-level sessieversie |
+| **Revocatie** | Logout of security-incident verhoogt `sessionVersion` en trekt alle bestaande sessies van die gebruiker in |
+| **Uitbreidbaarheid** | Een apparaatgebonden repository implementeert later hetzelfde revocatiecontract |
+
+Migratie naar een apparaatgebonden sessieregister is verplicht zodra gebruikers afzonderlijke apparaten moeten bekijken of intrekken, support of security één specifieke sessie moet beëindigen, enterprise/compliance een sessieaudittrail verlangt, risicogestuurde sessiecontrole per apparaat nodig wordt, of de all-device-logoutbeperking aantoonbaar onaanvaardbare gebruikersimpact veroorzaakt. Die migratie vereist hashed `jti`-identiteit, expiratie en revocatiestatus, begrensde metadata, retentie/cleanup, indexen en contracttests; routers en de authenticatiegrens blijven ongewijzigd.
+
 ### 5.2 Autorisatie
 
 Iedere procedure bepaalt expliciet of ze publiek, aangemeld, beheerdergebonden of eigenaarsgebonden is. Objecttoegang filtert in de databasequery tegelijk op object-ID en gebruiker-ID; eerst ophalen en daarna in applicatiecode controleren is enkel aanvaardbaar wanneer de query niet veilig gecombineerd kan worden. Een niet-toegankelijk object geeft bij voorkeur dezelfde respons als een niet-bestaand object om enumeratie te beperken.
@@ -130,6 +146,30 @@ Vóór een belangrijke publieke lancering of infrastructuurwijziging worden krit
 | Aparte marktdata-service | Marktdata heeft onafhankelijk schaal-, beveiligings- of deploygedrag |
 | Read replica | Gemeten leesdruk veroorzaakt databasecontentie ondanks query- en indexoptimalisatie |
 | Multi-region | Bedrijfscontinuïteit of latency rechtvaardigt de extra complexiteit en dataresidentie is opgelost |
+
+### 7.6 Rate-limitingarchitectuur — ADR-2026-07-16-A
+
+Voor Fase A gebruikt Trimilix routeklasse-specifieke lokale limiters voor OAuth, storage en tRPC. Deze keuze biedt directe misbruikbeperking zonder de primaire database met veiligheidswrites te belasten en zonder voortijdig een externe infrastructuurafhankelijkheid toe te voegen. De implementatie staat achter het interne `RateLimitStoreFactory`-contract. Policies, sleutelvorming, HTTP-responsen en logging kennen daardoor geen concrete store; een toekomstige Redis- of edge-adapter kan de lokale store vervangen zonder routers of publieke contracten te herschrijven.
+
+| Onderdeel | Beslissing |
+|---|---|
+| **Store in Fase A** | Eén lokale `MemoryStore` per routeklasse en per app-instance |
+| **Sleutel** | Gehashte gebruikersidentiteit bij een geldige sessie; anders proxy-gecorrigeerd IP-adres |
+| **Privacy** | Limietevents loggen routeklasse, request-ID en storekenmerken, maar geen token, openID of volledig IP-adres |
+| **Gedrag** | Standaard `RateLimit`-headers, HTTP 429 en een stabiele foutcode; limieten zijn per routeklasse testbaar |
+| **Exitstrategie** | Een gedistribueerde adapter implementeert hetzelfde storecontract en wordt via de centrale factory geïnjecteerd |
+
+De lokale store is bewust **niet globaal over autoscaling instances**. Migratie naar managed Redis of aantoonbaar gelijkwaardige edge rate limiting is daarom verplicht vóór brede publieke schaal zodra één van de onderstaande omstandigheden geldt. Tot die migratie is horizontaal opgeschaalde rate limiting een expliciet restrisico en mag zij niet als globale quota-afdwinging worden beschreven.
+
+| Verplichte migratietrigger | Vereiste actie |
+|---|---|
+| Productie draait structureel met meer dan één gelijktijdige app-instance | Activeer een gedeelde store vóór de capaciteitswijziging als productiecontrole geldt |
+| Misbruik of limietomzeiling wordt over verschillende instances waargenomen | Behandel als security-incident en migreer met spoed naar een globale limiter |
+| Publiek verkeer of betaalde klantgroei maakt strikte user-, tenant- of abonnementsquota noodzakelijk | Gebruik globale atomische counters en contracttests voor alle routeklassen |
+| Een SLA, audit-, verzekerings- of compliance-eis verlangt consistente globale limieten | Voltooi de gedistribueerde migratie vóór de eis ingaat |
+| De app wordt multi-region of via meerdere onafhankelijke edge-/runtimepools bediend | Verplaats de primaire limiter naar de edge of een regionaal consistent gedistribueerd ontwerp |
+
+Een database-backed limiter op de primaire productiedatabase is geen standaard fallback. Deze variant vereist een afzonderlijk ADR, omdat aanvalsverkeer anders write-amplificatie, hogere latency en een grotere blast radius voor kerngegevens kan veroorzaken.
 
 ## 8. Marktdata en provider-onafhankelijkheid
 

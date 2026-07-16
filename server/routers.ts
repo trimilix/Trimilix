@@ -2,6 +2,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import { sessionRevocationAdapter } from "./_core/sessionRevocation";
+import { TRPCError } from "@trpc/server";
 import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription, getEtfBySymbol, createEtf, listEtfs, getDb } from "./db";
 import { analyzePortfolio } from "./portfolioAnalysis";
 import { etfs } from "../drizzle/schema";
@@ -12,9 +14,22 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
+    logout: publicProcedure.mutation(async ({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+
+      if (ctx.user) {
+        const revoked = await sessionRevocationAdapter.revokeAllForUser(
+          ctx.user.openId,
+        );
+        if (!revoked) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Session revocation could not be confirmed",
+          });
+        }
+      }
+
       return {
         success: true,
       } as const;

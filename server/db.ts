@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, portfolios, holdings, goals, subscriptions, etfs, InsertPortfolio, InsertHolding, InsertGoal, InsertSubscription, InsertEtf } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -87,6 +87,21 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function rotateUserSessionVersion(openId: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot revoke sessions: database not available");
+    return false;
+  }
+
+  const result = await db
+    .update(users)
+    .set({ sessionVersion: sql`${users.sessionVersion} + 1` })
+    .where(eq(users.openId, openId));
+
+  return Number(result[0]?.affectedRows ?? 0) === 1;
 }
 
 // Portfolio queries

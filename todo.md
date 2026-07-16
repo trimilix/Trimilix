@@ -97,10 +97,10 @@
 - [x] **Security — HTTP-baseline:** Voeg CSP, HSTS in productie, framebeperking, `X-Content-Type-Options`, Referrer-Policy en Permissions-Policy toe; verwijder `X-Powered-By`; dek headers af met Vitest.
 - [x] **Security — Requestgrenzen:** Verlaag de standaard JSON/form-bodylimiet van 50 MB naar een onderbouwde kleine limiet en test oversized requests.
 - [x] **Security — Runtimeconfiguratie:** Valideer kritieke database-, JWT-, OAuth- en storageconfiguratie fail-fast met negatieve tests.
-- [ ] **Security — Storageautorisatie:** Beperk de storageproxy tot expliciet toegestane publieke assets en bescherm private objecten met authenticatie, eigenaar-/namespacecontrole en tests.
-- [ ] **Security — Rate limiting:** Implementeer routeklasse-specifieke limieten voor OAuth, tRPC en storage, inclusief relevante headers, foutresponsen, metrics/logging en tests.
-- [ ] **Security — Sessies:** Verkort en documenteer sessieduur, valideer `iss`/`aud`/app-binding waar compatibel, en voeg een expliciete revocatie-/rotatiestrategie en regressietests toe.
-- [ ] **Privacy — Browseropslag:** Verwijder productie-bearertokens en volledige gebruikersprofielen uit JavaScript-toegankelijke webstorage; wis resterende authdata bij logout; voeg tests toe.
+- [x] **Security — Storageautorisatie:** Beperk de storageproxy tot expliciet toegestane publieke assets en bescherm private objecten met authenticatie, eigenaar-/namespacecontrole en tests.
+- [x] **Security — Rate limiting:** Implementeer routeklasse-specifieke limieten voor OAuth, tRPC en storage, inclusief relevante headers, foutresponsen, metrics/logging en tests.
+- [x] **Security — Sessies:** Verkort en documenteer sessieduur, valideer `iss`/`aud`/app-binding waar compatibel, en voeg een expliciete revocatie-/rotatiestrategie en regressietests toe.
+- [x] **Privacy — Browseropslag:** Verwijder productie-bearertokens en volledige gebruikersprofielen uit JavaScript-toegankelijke webstorage; wis resterende authdata bij logout; voeg tests toe.
 - [ ] **Betrouwbaarheid — Financiële kern:** Isoleer en test samengestelde interest, maandinleg, afronding, grenswaarden, risicoscore, ontbrekende ETF-data en bekende referentiecases.
 - [ ] **Database — Migratiereproduceerbaarheid:** Bewijs dat een lege database via de gecommitteerde migraties naar het actuele schema kan worden opgebouwd en leg de verificatie vast.
 - [ ] **Database — Integriteit en transacties:** Voeg benodigde constraints en transacties toe voor financiële mutaties zonder bestaande data te beschadigen; genereer, beoordeel en pas migraties gecontroleerd toe.
@@ -112,3 +112,6 @@
 - [ ] **Architectuur — Verouderde runtime:** Verwijder of archiveer het ongebruikte `server/index.ts` en borg één ondubbelzinnig productie-entrypoint.
 - [ ] **Verificatie:** Voer de volledige kwaliteitsketen, securityregressies, productiebuild, runtimechecks en relevante desktop-/mobielcontroles uit en leg bewijs vast.
 - [ ] **Rapportage:** Lever `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md` op met opgeloste P0/P1-punten, testbewijs, securitybewijs, performancebewijs, resterende risico's en een nieuw go/no-go-oordeel.
+- [x] **Architectuur — Rate-limitadapter:** Isoleer de lokale limiterstore achter een expliciete adapter/factory, documenteer Optie A in `ENGINEERING_HANDBOOK.md` en leg harde Redis/edge-migratietriggers vast (meer dan één productie-instance, significante publieke groei, limietmisbruik over instances, strengere compliance/SLA of behoefte aan globale user-/tenantquota).
+- [x] **Architectuur — Sessierevocatieadapter:** Implementeer een expliciet sessierevocatiecontract met user-level `sessionVersion`, zodat 7-daagse JWT-validatie nu werkt en later een apparaatgebonden sessierepository kan worden aangesloten zonder routers of authenticatiegrenzen te herschrijven.
+- [x] **Documentatie — Sessiebesluit:** Documenteer de 7-daagse HttpOnly-JWT, claimset, revocatiebeperking en migratietriggers naar apparaatgebonden sessies in `ENGINEERING_HANDBOOK.md` en `TECHNICAL_HANDOVER.md`.

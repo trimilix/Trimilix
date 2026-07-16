@@ -29,6 +29,13 @@
       "when": 1784150429120,
       "tag": "0003_useful_baron_strucker",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1784193975118,
+      "tag": "0004_spicy_hercules",
+      "breakpoints": true
     }
   ]
 }

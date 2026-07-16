@@ -1,24 +1,31 @@
-// Preconfigured storage helpers for Manus WebDev templates
-// Uploads via Forge Server presigned URL to S3 (PUT direct).
-// Downloads return /manus-storage/{key} paths served via 307 redirect.
+// Preconfigured storage helpers for Manus WebDev templates.
+// Uploads are restricted to explicit public or user-owned private namespaces.
 
 import { ENV } from "./_core/env";
+import {
+  classifyStorageKey,
+  normalizeStorageKey,
+  privateStorageKey,
+  publicStorageKey,
+} from "./_core/storagePolicy";
 
 function getForgeConfig() {
   const forgeUrl = ENV.forgeApiUrl;
   const forgeKey = ENV.forgeApiKey;
 
   if (!forgeUrl || !forgeKey) {
-    throw new Error(
-      "Storage config missing: set BUILT_IN_FORGE_API_URL and BUILT_IN_FORGE_API_KEY",
-    );
+    throw new Error("Storage configuration unavailable");
   }
 
   return { forgeUrl: forgeUrl.replace(/\/+$/, ""), forgeKey };
 }
 
-function normalizeKey(relKey: string): string {
-  return relKey.replace(/^\/+/, "");
+function requireManagedKey(relKey: string): string {
+  const key = normalizeStorageKey(relKey);
+  if (!key || classifyStorageKey(key).kind === "denied") {
+    throw new Error("Storage key is outside an allowed namespace");
+  }
+  return key;
 }
 
 function appendHashSuffix(relKey: string): string {
@@ -28,70 +35,102 @@ function appendHashSuffix(relKey: string): string {
   return `${relKey.slice(0, lastDot)}_${hash}${relKey.slice(lastDot)}`;
 }
 
-export async function storagePut(
-  relKey: string,
+async function putManagedObject(
+  managedKey: string,
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream",
 ): Promise<{ key: string; url: string }> {
   const { forgeUrl, forgeKey } = getForgeConfig();
-  const key = appendHashSuffix(normalizeKey(relKey));
+  const key = appendHashSuffix(requireManagedKey(managedKey));
 
-  // 1. Get presigned PUT URL from Forge
   const presignUrl = new URL("v1/storage/presign/put", forgeUrl + "/");
   presignUrl.searchParams.set("path", key);
 
-  const presignResp = await fetch(presignUrl, {
+  const presignResponse = await fetch(presignUrl, {
     headers: { Authorization: `Bearer ${forgeKey}` },
   });
 
-  if (!presignResp.ok) {
-    const msg = await presignResp.text().catch(() => presignResp.statusText);
-    throw new Error(`Storage presign failed (${presignResp.status}): ${msg}`);
+  if (!presignResponse.ok) {
+    throw new Error(`Storage presign failed (${presignResponse.status})`);
   }
 
-  const { url: s3Url } = (await presignResp.json()) as { url: string };
-  if (!s3Url) throw new Error("Forge returned empty presign URL");
+  const payload = (await presignResponse.json()) as { url?: unknown };
+  if (typeof payload.url !== "string") {
+    throw new Error("Storage service returned an invalid upload URL");
+  }
 
-  // 2. PUT file directly to S3
   const blob =
     typeof data === "string"
       ? new Blob([data], { type: contentType })
-      : new Blob([data as any], { type: contentType });
+      : new Blob([data as BlobPart], { type: contentType });
 
-  const uploadResp = await fetch(s3Url, {
+  const uploadResponse = await fetch(payload.url, {
     method: "PUT",
     headers: { "Content-Type": contentType },
     body: blob,
   });
 
-  if (!uploadResp.ok) {
-    throw new Error(`Storage upload to S3 failed (${uploadResp.status})`);
+  if (!uploadResponse.ok) {
+    throw new Error(`Storage upload failed (${uploadResponse.status})`);
   }
 
   return { key, url: `/manus-storage/${key}` };
 }
 
-export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
-  const key = normalizeKey(relKey);
+export function storagePutPublic(
+  relativeKey: string,
+  data: Buffer | Uint8Array | string,
+  contentType?: string,
+): Promise<{ key: string; url: string }> {
+  return putManagedObject(publicStorageKey(relativeKey), data, contentType);
+}
+
+export function storagePutPrivate(
+  openId: string,
+  relativeKey: string,
+  data: Buffer | Uint8Array | string,
+  contentType?: string,
+): Promise<{ key: string; url: string }> {
+  return putManagedObject(privateStorageKey(openId, relativeKey), data, contentType);
+}
+
+/**
+ * Retained for compatibility. Callers must provide a fully managed key under
+ * `public/` or `private/users/<owner-namespace>/`.
+ */
+export function storagePut(
+  managedKey: string,
+  data: Buffer | Uint8Array | string,
+  contentType?: string,
+): Promise<{ key: string; url: string }> {
+  return putManagedObject(managedKey, data, contentType);
+}
+
+export async function storageGet(
+  managedKey: string,
+): Promise<{ key: string; url: string }> {
+  const key = requireManagedKey(managedKey);
   return { key, url: `/manus-storage/${key}` };
 }
 
-export async function storageGetSignedUrl(relKey: string): Promise<string> {
+export async function storageGetSignedUrl(managedKey: string): Promise<string> {
   const { forgeUrl, forgeKey } = getForgeConfig();
-  const key = normalizeKey(relKey);
+  const key = requireManagedKey(managedKey);
 
   const getUrl = new URL("v1/storage/presign/get", forgeUrl + "/");
   getUrl.searchParams.set("path", key);
 
-  const resp = await fetch(getUrl, {
+  const response = await fetch(getUrl, {
     headers: { Authorization: `Bearer ${forgeKey}` },
   });
 
-  if (!resp.ok) {
-    const msg = await resp.text().catch(() => resp.statusText);
-    throw new Error(`Storage signed URL failed (${resp.status}): ${msg}`);
+  if (!response.ok) {
+    throw new Error(`Storage signed URL failed (${response.status})`);
   }
 
-  const { url } = (await resp.json()) as { url: string };
-  return url;
+  const payload = (await response.json()) as { url?: unknown };
+  if (typeof payload.url !== "string") {
+    throw new Error("Storage service returned an invalid download URL");
+  }
+  return payload.url;
 }

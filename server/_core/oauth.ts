@@ -1,8 +1,8 @@
-import { COOKIE_NAME, ONE_YEAR_MS, OAUTH_STATE_COOKIE, decodeOAuthState } from "@shared/const";
+import { COOKIE_NAME, OAUTH_STATE_COOKIE, decodeOAuthState } from "@shared/const";
 import { parse as parseCookieHeader } from "cookie";
 import type { Express, Request, Response } from "express";
 import * as db from "../db";
-import { getSessionCookieOptions } from "./cookies";
+import { getPersistentSessionCookieOptions } from "./cookies";
 import { getSdk } from "./sdk";
 
 function getQueryParam(req: Request, key: string): string | undefined {
@@ -49,13 +49,21 @@ export function registerOAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
+      const user = await db.getUserByOpenId(userInfo.openId);
+      if (!user) {
+        throw new Error("Cannot establish session without persisted user");
+      }
+
       const sessionToken = await sdk.createSessionToken(userInfo.openId, {
         name: userInfo.name || "",
-        expiresInMs: ONE_YEAR_MS,
+        sessionVersion: user.sessionVersion,
       });
 
-      const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      res.cookie(
+        COOKIE_NAME,
+        sessionToken,
+        getPersistentSessionCookieOptions(req),
+      );
 
       res.redirect(302, "/");
     } catch (error) {
