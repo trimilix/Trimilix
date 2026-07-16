@@ -1,10 +1,25 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { adminProcedure, publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import {
+  adminProcedure,
+  publicProcedure,
+  router,
+  protectedProcedure,
+} from "./_core/trpc";
 import { sessionRevocationAdapter } from "./_core/sessionRevocation";
 import { TRPCError } from "@trpc/server";
-import { getUserPortfolios, getPortfolioWithHoldings, createPortfolio, getUserGoals, getUserSubscription, getEtfBySymbol, createEtf, listEtfs, getDb } from "./db";
+import {
+  getUserPortfolios,
+  getPortfolioWithHoldings,
+  createPortfolio,
+  getUserGoals,
+  getUserSubscription,
+  getEtfBySymbol,
+  createEtf,
+  listEtfs,
+  getDb,
+} from "./db";
 import { analyzePortfolio } from "./portfolioAnalysis";
 import { etfs } from "../drizzle/schema";
 import { count } from "drizzle-orm";
@@ -20,7 +35,7 @@ export const appRouter = router({
 
       if (ctx.user) {
         const revoked = await sessionRevocationAdapter.revokeAllForUser(
-          ctx.user.openId,
+          ctx.user.openId
         );
         if (!revoked) {
           throw new TRPCError({
@@ -37,28 +52,46 @@ export const appRouter = router({
   }),
 
   portfolio: router({
-    list: protectedProcedure.query(({ ctx }) =>
-      getUserPortfolios(ctx.user.id)
-    ),
-    get: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(({ ctx, input }) =>
-      getPortfolioWithHoldings(input.id, ctx.user.id)
-    ),
-    create: protectedProcedure.input(z.object({
-      name: z.string().min(1, "Naam is verplicht").max(255, "Naam is te lang"),
-      description: z.string().max(1000, "Beschrijving is te lang").optional(),
-      currency: z.string().length(3, "Valuta moet 3 tekens zijn").default("EUR"),
-    })).mutation(({ ctx, input }) =>
-      createPortfolio(ctx.user.id, input)
-    ),
-    analyze: protectedProcedure.input(z.object({ portfolioId: z.number().int().positive() })).query(({ ctx, input }) =>
-      analyzePortfolio(input.portfolioId, ctx.user.id)
-    ),
+    list: protectedProcedure
+      .input(
+        z.object({
+          limit: z.number().int().min(1).max(100).default(25),
+          cursor: z.number().int().positive().optional(),
+        })
+      )
+      .query(({ ctx, input }) => getUserPortfolios(ctx.user.id, input)),
+    get: protectedProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .query(({ ctx, input }) =>
+        getPortfolioWithHoldings(input.id, ctx.user.id)
+      ),
+    create: protectedProcedure
+      .input(
+        z.object({
+          name: z
+            .string()
+            .min(1, "Naam is verplicht")
+            .max(255, "Naam is te lang"),
+          description: z
+            .string()
+            .max(1000, "Beschrijving is te lang")
+            .optional(),
+          currency: z
+            .string()
+            .length(3, "Valuta moet 3 tekens zijn")
+            .default("EUR"),
+        })
+      )
+      .mutation(({ ctx, input }) => createPortfolio(ctx.user.id, input)),
+    analyze: protectedProcedure
+      .input(z.object({ portfolioId: z.number().int().positive() }))
+      .query(({ ctx, input }) =>
+        analyzePortfolio(input.portfolioId, ctx.user.id)
+      ),
   }),
 
   goals: router({
-    list: protectedProcedure.query(({ ctx }) =>
-      getUserGoals(ctx.user.id)
-    ),
+    list: protectedProcedure.query(({ ctx }) => getUserGoals(ctx.user.id)),
   }),
 
   subscription: router({
@@ -68,23 +101,31 @@ export const appRouter = router({
   }),
 
   etf: router({
-    list: protectedProcedure.query(() =>
-      listEtfs()
-    ),
-    get: protectedProcedure.input(z.object({ symbol: z.string() })).query(({ input }) =>
-      getEtfBySymbol(input.symbol)
-    ),
-    create: adminProcedure.input(z.object({
-      symbol: z.string().max(10),
-      name: z.string().max(255),
-      isin: z.string().max(12).optional(),
-      ter: z.number().int().optional(),
-      currency: z.string().max(3),
-      assetClass: z.string().max(50).optional(),
-      region: z.string().max(50).optional(),
-    })).mutation(({ input }) =>
-      createEtf(input)
-    ),
+    list: protectedProcedure
+      .input(
+        z.object({
+          query: z.string().max(100).optional(),
+          limit: z.number().int().min(1).max(100).default(25),
+          cursor: z.number().int().positive().optional(),
+        })
+      )
+      .query(({ input }) => listEtfs(input)),
+    get: protectedProcedure
+      .input(z.object({ symbol: z.string() }))
+      .query(({ input }) => getEtfBySymbol(input.symbol)),
+    create: adminProcedure
+      .input(
+        z.object({
+          symbol: z.string().max(10),
+          name: z.string().max(255),
+          isin: z.string().max(12).optional(),
+          ter: z.number().int().optional(),
+          currency: z.string().max(3),
+          assetClass: z.string().max(50).optional(),
+          region: z.string().max(50).optional(),
+        })
+      )
+      .mutation(({ input }) => createEtf(input)),
     count: protectedProcedure.query(async () => {
       const db = await getDb();
       if (!db) return { count: 0 };

@@ -19,29 +19,29 @@ Deze standaard geldt voor frontend, backend, database, integraties, marktdata, b
 
 ## 2. Kernprincipes
 
-| Principe | Verplichte toepassing |
-|---|---|
-| **Security by design** | Authenticatie, autorisatie, validatie, gegevensminimalisatie en veilige standaardwaarden worden tijdens het ontwerp bepaald, niet achteraf toegevoegd. |
-| **Evidence over assertions** | We documenteren nooit een controle als actief zonder verifieerbaar bewijs. |
-| **Modulariteit** | Domeinlogica is gescheiden van frameworks en externe providers. |
-| **Provider-onafhankelijkheid** | Externe diensten worden achter interne contracten en adapters geplaatst. |
-| **Least privilege** | Gebruikers, beheerders, services en secrets krijgen enkel de minimaal noodzakelijke rechten. |
-| **Meet vóór optimalisatie** | Performance- en schaalbeslissingen volgen uit SLI’s, profielen en loadtests. |
-| **Kosten zijn een runtime-eigenschap** | API-gebruik, cache-efficiëntie en kosten per provider en gebruiker moeten meetbaar worden. |
-| **Documentatie volgt de code** | Een codewijziging is onvolledig wanneer relevante architectuur-, API-, database- of operationele documentatie achterloopt. |
-| **Reversibele beslissingen** | Waar mogelijk kiezen we oplossingen die zonder grote migratie vervangen kunnen worden. |
+| Principe                               | Verplichte toepassing                                                                                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Security by design**                 | Authenticatie, autorisatie, validatie, gegevensminimalisatie en veilige standaardwaarden worden tijdens het ontwerp bepaald, niet achteraf toegevoegd. |
+| **Evidence over assertions**           | We documenteren nooit een controle als actief zonder verifieerbaar bewijs.                                                                             |
+| **Modulariteit**                       | Domeinlogica is gescheiden van frameworks en externe providers.                                                                                        |
+| **Provider-onafhankelijkheid**         | Externe diensten worden achter interne contracten en adapters geplaatst.                                                                               |
+| **Least privilege**                    | Gebruikers, beheerders, services en secrets krijgen enkel de minimaal noodzakelijke rechten.                                                           |
+| **Meet vóór optimalisatie**            | Performance- en schaalbeslissingen volgen uit SLI’s, profielen en loadtests.                                                                           |
+| **Kosten zijn een runtime-eigenschap** | API-gebruik, cache-efficiëntie en kosten per provider en gebruiker moeten meetbaar worden.                                                             |
+| **Documentatie volgt de code**         | Een codewijziging is onvolledig wanneer relevante architectuur-, API-, database- of operationele documentatie achterloopt.                             |
+| **Reversibele beslissingen**           | Waar mogelijk kiezen we oplossingen die zonder grote migratie vervangen kunnen worden.                                                                 |
 
 ## 3. Statusmodel en bewijsvoering
 
 Iedere architectuur- of securitycontrole krijgt één van de volgende statussen. Documentatie moet deze termen consequent gebruiken.
 
-| Status | Betekenis | Vereist bewijs |
-|---|---|---|
-| **Geïmplementeerd** | Actief in de huidige code of omgeving | Code/configuratie, test en waar nodig platformbewijs |
-| **Gedeeltelijk** | Slechts een deel van de controle is actief | Beschrijving van aanwezig en ontbrekend deel |
-| **Gepland** | Goedgekeurd ontwerp, nog niet gebouwd | Roadmap- of ADR-verwijzing |
-| **Platformafhankelijk** | Buiten de repository beheerd | Screenshot, export, auditlog of periodieke verificatie |
-| **Niet van toepassing** | Bewust niet relevant | Gemotiveerde uitzondering met herzieningsdatum |
+| Status                  | Betekenis                                  | Vereist bewijs                                         |
+| ----------------------- | ------------------------------------------ | ------------------------------------------------------ |
+| **Geïmplementeerd**     | Actief in de huidige code of omgeving      | Code/configuratie, test en waar nodig platformbewijs   |
+| **Gedeeltelijk**        | Slechts een deel van de controle is actief | Beschrijving van aanwezig en ontbrekend deel           |
+| **Gepland**             | Goedgekeurd ontwerp, nog niet gebouwd      | Roadmap- of ADR-verwijzing                             |
+| **Platformafhankelijk** | Buiten de repository beheerd               | Screenshot, export, auditlog of periodieke verificatie |
+| **Niet van toepassing** | Bewust niet relevant                       | Gemotiveerde uitzondering met herzieningsdatum         |
 
 De actuele baseline staat in [`docs/cto-baseline-audit.md`](docs/cto-baseline-audit.md). Afwijkingen worden in het sprintverslag en, bij structurele keuzes, in een Architecture Decision Record vastgelegd.
 
@@ -81,13 +81,13 @@ Trimilix gebruikt in Fase A een maximaal zeven dagen geldige, met HS256 ondertek
 
 Server-side revocatie gebruikt het interne `SessionRevocationAdapter`-contract. De Fase A-adapter vergelijkt de JWT-versie met de monotone `users.sessionVersion`. Logout wist de cookie en verhoogt deze versie atomisch, waardoor alle eerder uitgegeven sessies van die gebruiker ongeldig worden. Deze beperking — logout op alle apparaten — is bewust geaccepteerd omdat zij echte intrekking biedt zonder voortijdig een sessieregister, cleanupjobs en extra privacydata te introduceren.
 
-| Eigenschap | Fase A-beslissing |
-|---|---|
-| **Levensduur** | Maximaal zeven dagen; JWT en cookie gebruiken dezelfde gedeelde constante |
-| **Transport** | Alleen `HttpOnly`-cookie; geen productie-bearerfallback uit JavaScript-opslag |
-| **Binding** | Applicatie, issuer, audience, subject, unieke `jti` en user-level sessieversie |
-| **Revocatie** | Logout of security-incident verhoogt `sessionVersion` en trekt alle bestaande sessies van die gebruiker in |
-| **Uitbreidbaarheid** | Een apparaatgebonden repository implementeert later hetzelfde revocatiecontract |
+| Eigenschap           | Fase A-beslissing                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Levensduur**       | Maximaal zeven dagen; JWT en cookie gebruiken dezelfde gedeelde constante                                  |
+| **Transport**        | Alleen `HttpOnly`-cookie; geen productie-bearerfallback uit JavaScript-opslag                              |
+| **Binding**          | Applicatie, issuer, audience, subject, unieke `jti` en user-level sessieversie                             |
+| **Revocatie**        | Logout of security-incident verhoogt `sessionVersion` en trekt alle bestaande sessies van die gebruiker in |
+| **Uitbreidbaarheid** | Een apparaatgebonden repository implementeert later hetzelfde revocatiecontract                            |
 
 Migratie naar een apparaatgebonden sessieregister is verplicht zodra gebruikers afzonderlijke apparaten moeten bekijken of intrekken, support of security één specifieke sessie moet beëindigen, enterprise/compliance een sessieaudittrail verlangt, risicogestuurde sessiecontrole per apparaat nodig wordt, of de all-device-logoutbeperking aantoonbaar onaanvaardbare gebruikersimpact veroorzaakt. Die migratie vereist hashed `jti`-identiteit, expiratie en revocatiestatus, begrensde metadata, retentie/cleanup, indexen en contracttests; routers en de authenticatiegrens blijven ongewijzigd.
 
@@ -107,7 +107,9 @@ Secrets worden uitsluitend via beveiligde projectinstellingen of een secret mana
 
 ### 5.5 Dependency- en secret-scanning
 
-Iedere belangrijke sprint voert minimaal een dependency audit en repository-secret-scan uit. Bevindingen worden op ernst beoordeeld; kritieke en hoge kwetsbaarheden blokkeren productie tenzij een gedocumenteerde, tijdsgebonden risicoacceptatie bestaat. Scanners zijn signalen en worden steeds handmatig beoordeeld op bereikbaarheid en werkelijke impact.
+Iedere belangrijke sprint voert minimaal een dependency audit, ongebruikte-directe-dependencyaudit en repository-secret-scan uit. Bevindingen worden op ernst beoordeeld; kritieke en hoge kwetsbaarheden blokkeren productie tenzij een gedocumenteerde, tijdsgebonden risicoacceptatie bestaat. Scanners zijn signalen en worden steeds handmatig beoordeeld op bereikbaarheid en werkelijke impact.
+
+`scripts/audit-unused-dependencies.mjs` scant bron-, configuratie-, stylesheet- en package-scriptreferenties en draait via `pnpm deps:unused` in lokaal `verify` en CI. Fase 8 verwijderde negen aantoonbaar ongebruikte directe packages: de twee AWS-SDK-packages, `@hookform/resolvers`, `@tailwindcss/typography`, `add`, `autoprefixer`, `framer-motion`, `postcss` en `tailwindcss-animate`. De groene baseline bevat 81 directe packages en nul ongebruikte bevindingen. Impliciete type-/compilerpackages staan expliciet in de auditallowlist; iedere nieuwe uitzondering vereist een codecommentaar en review.
 
 ### 5.6 Securitymelding
 
@@ -129,6 +131,12 @@ Voor productie worden minimaal requestvolume, foutpercentage, p50/p95/p99-respon
 
 Query’s selecteren enkel noodzakelijke kolommen, gebruiken passende indexen en vermijden N+1-patronen. Nieuwe of gewijzigde kritieke query’s worden met realistische datavolumes getest. Transacties worden gebruikt wanneer meerdere writes één businessactie vormen. Idempotency is verplicht voor betalingen, webhooks en herhaalbare mutaties met financieel effect.
 
+De portfolio- en ETF-lijstprocedures gebruiken oplopende numerieke cursors, een standaardlimiet van 25 en een servermaximum van 100. De eigenaarfiltering van portfolio’s blijft onderdeel van dezelfde databasequery. Frontends laden aanvullende pagina’s expliciet en mogen geen onbegrensde `list`-procedure introduceren. Portfolioanalyse haalt alle benodigde ETF-rijen in één gededupliceerde `IN`-batch op; ontbrekende rijen blijven ontbrekend en worden nooit met standaardrisicodata ingevuld. `server/performanceArchitecture.test.ts` bewaakt deze queryvorm statisch en `server/portfolioAnalysis.test.ts` bewijst één batchcall plus ongewijzigde financiële uitkomsten.
+
+#### 7.2.1 Frontendbundles
+
+Alle niet-home routes worden via `React.lazy` geladen achter één toegankelijke `Suspense`-fallback. De Vite-build schrijft een manifest; `scripts/check-bundle-budget.mjs` berekent daaruit de volledige statische entrygrafiek en de grootste async chunk. De definitieve Fase 8-releasebuild meet **647.644 bytes raw / 192.022 bytes gzip** voor initiële JavaScript en **398.561 bytes raw / 110.858 bytes gzip** voor de grootste async chunk. De fail-closed budgetten zijn respectievelijk **716.800 / 215.040 bytes** en **435.200 / 124.928 bytes**, met minimaal vijf dynamische routes. Iedere productiebuild, lokale `verify` en CI-run voert deze controle uit. Een budgetverhoging vereist een gemeten verklaring, review en bijgewerkte baseline; het uitschakelen van de gate is geen acceptabele oplossing.
+
 ### 7.3 Caching
 
 Caching wordt gebruikt wanneer het aantoonbaar latency, providerquota of kosten verbetert. Iedere cache definieert sleutel, TTL, invalidatie, maximaal aanvaardbare stale data, privacyclassificatie en fallback. Gebruikersspecifieke financiële data mag niet via een gedeelde sleutel lekken. Cachemisses worden waar nuttig samengevoegd om een stampede te voorkomen.
@@ -139,35 +147,35 @@ Vóór een belangrijke publieke lancering of infrastructuurwijziging worden krit
 
 ### 7.5 Schaaltriggers
 
-| Mogelijke uitbreiding | Objectieve trigger |
-|---|---|
-| Gedeelde Redis-cache | Meerdere app-instanties met inconsistente lokale cache, of providerquota/kosten die door herhaalde requests oplopen |
-| Queue en workers | Langlopende of herhaalbare taken blokkeren requests, vereisen retries of moeten idempotent buiten de requestcyclus draaien |
-| Aparte marktdata-service | Marktdata heeft onafhankelijk schaal-, beveiligings- of deploygedrag |
-| Read replica | Gemeten leesdruk veroorzaakt databasecontentie ondanks query- en indexoptimalisatie |
-| Multi-region | Bedrijfscontinuïteit of latency rechtvaardigt de extra complexiteit en dataresidentie is opgelost |
+| Mogelijke uitbreiding    | Objectieve trigger                                                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Gedeelde Redis-cache     | Meerdere app-instanties met inconsistente lokale cache, of providerquota/kosten die door herhaalde requests oplopen        |
+| Queue en workers         | Langlopende of herhaalbare taken blokkeren requests, vereisen retries of moeten idempotent buiten de requestcyclus draaien |
+| Aparte marktdata-service | Marktdata heeft onafhankelijk schaal-, beveiligings- of deploygedrag                                                       |
+| Read replica             | Gemeten leesdruk veroorzaakt databasecontentie ondanks query- en indexoptimalisatie                                        |
+| Multi-region             | Bedrijfscontinuïteit of latency rechtvaardigt de extra complexiteit en dataresidentie is opgelost                          |
 
 ### 7.6 Rate-limitingarchitectuur — ADR-2026-07-16-A
 
 Voor Fase A gebruikt Trimilix routeklasse-specifieke lokale limiters voor OAuth, storage en tRPC. Deze keuze biedt directe misbruikbeperking zonder de primaire database met veiligheidswrites te belasten en zonder voortijdig een externe infrastructuurafhankelijkheid toe te voegen. De implementatie staat achter het interne `RateLimitStoreFactory`-contract. Policies, sleutelvorming, HTTP-responsen en logging kennen daardoor geen concrete store; een toekomstige Redis- of edge-adapter kan de lokale store vervangen zonder routers of publieke contracten te herschrijven.
 
-| Onderdeel | Beslissing |
-|---|---|
-| **Store in Fase A** | Eén lokale `MemoryStore` per routeklasse en per app-instance |
-| **Sleutel** | Gehashte gebruikersidentiteit bij een geldige sessie; anders proxy-gecorrigeerd IP-adres |
-| **Privacy** | Limietevents loggen routeklasse, request-ID en storekenmerken, maar geen token, openID of volledig IP-adres |
-| **Gedrag** | Standaard `RateLimit`-headers, HTTP 429 en een stabiele foutcode; limieten zijn per routeklasse testbaar |
-| **Exitstrategie** | Een gedistribueerde adapter implementeert hetzelfde storecontract en wordt via de centrale factory geïnjecteerd |
+| Onderdeel           | Beslissing                                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Store in Fase A** | Eén lokale `MemoryStore` per routeklasse en per app-instance                                                    |
+| **Sleutel**         | Gehashte gebruikersidentiteit bij een geldige sessie; anders proxy-gecorrigeerd IP-adres                        |
+| **Privacy**         | Limietevents loggen routeklasse, request-ID en storekenmerken, maar geen token, openID of volledig IP-adres     |
+| **Gedrag**          | Standaard `RateLimit`-headers, HTTP 429 en een stabiele foutcode; limieten zijn per routeklasse testbaar        |
+| **Exitstrategie**   | Een gedistribueerde adapter implementeert hetzelfde storecontract en wordt via de centrale factory geïnjecteerd |
 
 De lokale store is bewust **niet globaal over autoscaling instances**. Migratie naar managed Redis of aantoonbaar gelijkwaardige edge rate limiting is daarom verplicht vóór brede publieke schaal zodra één van de onderstaande omstandigheden geldt. Tot die migratie is horizontaal opgeschaalde rate limiting een expliciet restrisico en mag zij niet als globale quota-afdwinging worden beschreven.
 
-| Verplichte migratietrigger | Vereiste actie |
-|---|---|
-| Productie draait structureel met meer dan één gelijktijdige app-instance | Activeer een gedeelde store vóór de capaciteitswijziging als productiecontrole geldt |
-| Misbruik of limietomzeiling wordt over verschillende instances waargenomen | Behandel als security-incident en migreer met spoed naar een globale limiter |
-| Publiek verkeer of betaalde klantgroei maakt strikte user-, tenant- of abonnementsquota noodzakelijk | Gebruik globale atomische counters en contracttests voor alle routeklassen |
-| Een SLA, audit-, verzekerings- of compliance-eis verlangt consistente globale limieten | Voltooi de gedistribueerde migratie vóór de eis ingaat |
-| De app wordt multi-region of via meerdere onafhankelijke edge-/runtimepools bediend | Verplaats de primaire limiter naar de edge of een regionaal consistent gedistribueerd ontwerp |
+| Verplichte migratietrigger                                                                           | Vereiste actie                                                                                |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Productie draait structureel met meer dan één gelijktijdige app-instance                             | Activeer een gedeelde store vóór de capaciteitswijziging als productiecontrole geldt          |
+| Misbruik of limietomzeiling wordt over verschillende instances waargenomen                           | Behandel als security-incident en migreer met spoed naar een globale limiter                  |
+| Publiek verkeer of betaalde klantgroei maakt strikte user-, tenant- of abonnementsquota noodzakelijk | Gebruik globale atomische counters en contracttests voor alle routeklassen                    |
+| Een SLA, audit-, verzekerings- of compliance-eis verlangt consistente globale limieten               | Voltooi de gedistribueerde migratie vóór de eis ingaat                                        |
+| De app wordt multi-region of via meerdere onafhankelijke edge-/runtimepools bediend                  | Verplaats de primaire limiter naar de edge of een regionaal consistent gedistribueerd ontwerp |
 
 Een database-backed limiter op de primaire productiedatabase is geen standaard fallback. Deze variant vereist een afzonderlijk ADR, omdat aanvalsverkeer anders write-amplificatie, hogere latency en een grotere blast radius voor kerngegevens kan veroorzaken.
 
@@ -197,11 +205,11 @@ Een kostendashboard is **gepland** en moet minstens het volgende tonen: aantal r
 
 Trimilix gebruikt logisch gescheiden **Development**, **Staging** en **Production**. Wanneer de hostinglaag nog geen drie fysiek gescheiden omgevingen biedt, wordt dat als platformrisico geregistreerd en worden minimaal afzonderlijke configuratie, secrets en data gebruikt. Er wordt nooit rechtstreeks in productie ontwikkeld.
 
-| Omgeving | Doel | Data en integraties |
-|---|---|---|
-| Development | Lokale ontwikkeling en snelle tests | Geen productiegegevens; sandboxproviders waar mogelijk |
-| Staging | Integratie-, migratie-, security- en acceptatietests | Productie-achtige synthetische data; testbetalingen |
-| Production | Klantverkeer | Strikt beheerde secrets, monitoring, back-up en change control |
+| Omgeving    | Doel                                                 | Data en integraties                                            |
+| ----------- | ---------------------------------------------------- | -------------------------------------------------------------- |
+| Development | Lokale ontwikkeling en snelle tests                  | Geen productiegegevens; sandboxproviders waar mogelijk         |
+| Staging     | Integratie-, migratie-, security- en acceptatietests | Productie-achtige synthetische data; testbetalingen            |
+| Production  | Klantverkeer                                         | Strikt beheerde secrets, monitoring, back-up en change control |
 
 Een productieklare release vereist geslaagde typecheck, tests, build, dependencybeoordeling, secret-scan, migratiecontrole, documentatie-update en rollbackplan. Betalings-, authenticatie-, autorisatie- en datamigratiewijzigingen krijgen expliciete handmatige review.
 
@@ -209,13 +217,13 @@ Een productieklare release vereist geslaagde typecheck, tests, build, dependency
 
 Back-upverantwoordelijkheden worden per laag vastgelegd. Broncode en documentatie worden via versiebeheer en projectcheckpoints beschermd. Databaseback-ups en point-in-time recovery zijn platformafhankelijk en moeten met bewijs geverifieerd worden. Configuratie wordt versiebeheerbaar gemaakt zonder secrets. Secrets worden via een beveiligde beheerlaag gereconstrueerd of volgens het platformbeleid beschermd; ze worden niet naar platte tekst geëxporteerd.
 
-| Asset | Vereiste | Herstelbewijs |
-|---|---|---|
-| Database | Versleutelde back-up, retentie en waar mogelijk point-in-time recovery | Periodieke restore naar geïsoleerde omgeving |
-| Broncode | Externe Git-repository en projectcheckpoint | Schone checkout/build |
-| Configuratie | Versiebeheerbare niet-geheime configuratie | Reproduceerbare environment setup |
-| Documentatie | Zelfde lifecycle als code | Aanwezig in release/checkpoint |
-| Secrets | Beveiligd beheer en rotatieprocedure | Rotatietest zonder secretwaarde te loggen |
+| Asset        | Vereiste                                                               | Herstelbewijs                                |
+| ------------ | ---------------------------------------------------------------------- | -------------------------------------------- |
+| Database     | Versleutelde back-up, retentie en waar mogelijk point-in-time recovery | Periodieke restore naar geïsoleerde omgeving |
+| Broncode     | Externe Git-repository en projectcheckpoint                            | Schone checkout/build                        |
+| Configuratie | Versiebeheerbare niet-geheime configuratie                             | Reproduceerbare environment setup            |
+| Documentatie | Zelfde lifecycle als code                                              | Aanwezig in release/checkpoint               |
+| Secrets      | Beveiligd beheer en rotatieprocedure                                   | Rotatietest zonder secretwaarde te loggen    |
 
 Een back-up telt pas als betrouwbaar nadat een hersteltest geslaagd is. Hersteldoelstellingen voor tijd en dataverlies worden vóór publieke betalende lancering samen met de bedrijfsimpact vastgelegd.
 
@@ -236,15 +244,15 @@ De CI-workflow gebruikt read-only repositorypermissions en ontvangt geen product
 
 De volgende documenten worden samen met relevante code bijgewerkt:
 
-| Document | Verantwoordelijkheid |
-|---|---|
-| `ENGINEERING_HANDBOOK.md` | Normen, releasegates en engineeringbeleid |
-| `docs/architecture.md` | Huidige architectuur, doelrichting, datastromen en trust boundaries |
-| `docs/market-data-architecture.md` | Providercontract, cache, failover, licenties en premium entitlement |
-| `docs/cto-baseline-audit.md` | Feitelijke baseline en gaps |
-| `docs/cto-sprint-report-template.md` | Vast sprintreviewformat |
-| `docs/adr/` | Beslissingen met alternatieven en trade-offs |
-| `drizzle/schema.ts` en migraties | Datamodel als code en wijzigingshistoriek |
+| Document                             | Verantwoordelijkheid                                                |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| `ENGINEERING_HANDBOOK.md`            | Normen, releasegates en engineeringbeleid                           |
+| `docs/architecture.md`               | Huidige architectuur, doelrichting, datastromen en trust boundaries |
+| `docs/market-data-architecture.md`   | Providercontract, cache, failover, licenties en premium entitlement |
+| `docs/cto-baseline-audit.md`         | Feitelijke baseline en gaps                                         |
+| `docs/cto-sprint-report-template.md` | Vast sprintreviewformat                                             |
+| `docs/adr/`                          | Beslissingen met alternatieven en trade-offs                        |
+| `drizzle/schema.ts` en migraties     | Datamodel als code en wijzigingshistoriek                           |
 
 API-documentatie wordt uit de getypeerde tRPC-contracten en aanvullende domeindocumentatie opgebouwd. Voor externe integraties leggen we time-outs, retries, foutmapping, quota en gegevensclassificatie vast.
 
@@ -276,12 +284,12 @@ TiDB behandelt CHECK-enforcement als een globale capability. De runtime voert da
 
 De ETF-velden `ter` en `riskScore` blijven nullable, omdat ontbrekende brondata niet als een gefabriceerde financiële waarde mag worden opgeslagen. De toegestane expressies zijn `CHECK (ter >= 0)` en `CHECK (riskScore BETWEEN 1 AND 5)`. Volgens de SQL-/TiDB-semantiek faalt een CHECK alleen bij `FALSE`; `UNKNOWN` door `NULL` blijft geldig. Dit behoudt de businesssemantiek en vermijdt de bij TiDB 8.5 aangetroffen DDL-afwijking voor de expliciete vorm `IS NULL OR ...` op bestaande tabellen.[5]
 
-| Situatie | Verplicht gedrag |
-|---|---|
-| `ter` of `riskScore` is `NULL` | Opslag toegestaan; financiële analyse blijft applicatief fail-closed bij ontbrekende risicodata |
-| `ter < 0` | Database weigert de write |
-| `riskScore` buiten 1–5 | Database weigert de write |
-| CHECK-capability uit of constraintset onvolledig | Migratie-, runtime- of CI-preflight stopt |
+| Situatie                                         | Verplicht gedrag                                                                                |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `ter` of `riskScore` is `NULL`                   | Opslag toegestaan; financiële analyse blijft applicatief fail-closed bij ontbrekende risicodata |
+| `ter < 0`                                        | Database weigert de write                                                                       |
+| `riskScore` buiten 1–5                           | Database weigert de write                                                                       |
+| CHECK-capability uit of constraintset onvolledig | Migratie-, runtime- of CI-preflight stopt                                                       |
 
 ### 18.3 Migratiejournal en convergentie
 
@@ -301,17 +309,18 @@ De rehearsal bewijst technische reproduceerbaarheid, maar vervangt geen platform
 
 Een generieke request-level idempotencyoplossing wordt bewust nog niet toegevoegd zolang de huidige writes enkelvoudig, lokaal atomisch en zonder externe retry-/deliverysemantiek zijn. Zij wordt echter verplicht vóór ingebruikname van Stripe-checkout, payment intents, webhooks, brokerorders, geldachtige mutaties, samengestelde kritieke transacties of iedere flow die door clients, queues of providers at-least-once kan worden aangeboden.
 
-| Trigger | Minimale vereiste |
-|---|---|
-| Stripe, betalingen of providerwebhooks | Unieke provider-event-ID plus intern idempotency-keycontract |
-| Geldachtige of samengestelde financiële mutatie | Atomische businesswrite en idempotencyrecord in dezelfde transactie |
-| Client- of queue-retries | Payloadhash; dezelfde key met andere payload wordt geweigerd |
-| Replay/auditbehoefte | Status, resultaatreferentie, created/expiry timestamps en privacybewuste auditmetadata |
-| Retentiebehoefte | Vastgelegde TTL, periodieke cleanup, indexen en capaciteit-/kostenlimiet |
+| Trigger                                         | Minimale vereiste                                                                      |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Stripe, betalingen of providerwebhooks          | Unieke provider-event-ID plus intern idempotency-keycontract                           |
+| Geldachtige of samengestelde financiële mutatie | Atomische businesswrite en idempotencyrecord in dezelfde transactie                    |
+| Client- of queue-retries                        | Payloadhash; dezelfde key met andere payload wordt geweigerd                           |
+| Replay/auditbehoefte                            | Status, resultaatreferentie, created/expiry timestamps en privacybewuste auditmetadata |
+| Retentiebehoefte                                | Vastgelegde TTL, periodieke cleanup, indexen en capaciteit-/kostenlimiet               |
 
 De implementatie vereist een afzonderlijk ADR met keyscope per gebruiker/tenant en operatie, conflictgedrag, in-progress locking, replaycontract, payloadcanonicalisatie, retentie en tests voor gelijktijdige dubbele aanbieding. Zonder deze garanties mag een betaling of geldachtige operatie niet worden vrijgegeven.
 
 ## Referenties
+
 [1]: https://owasp.org/www-project-top-ten/ "OWASP Top 10"
 [2]: https://owasp.org/www-project-application-security-verification-standard/ "OWASP Application Security Verification Standard"
 [3]: https://csrc.nist.gov/Projects/ssdf "NIST Secure Software Development Framework"

@@ -63,6 +63,43 @@ describe("authorization boundaries", () => {
     vi.clearAllMocks();
   });
 
+  it("passes bounded portfolio cursor input with the authenticated user id", async () => {
+    dbMocks.getUserPortfolios.mockResolvedValue({
+      items: [],
+      nextCursor: null,
+    });
+    const caller = appRouter.createCaller(createContext("user", 7));
+
+    await caller.portfolio.list({ limit: 25, cursor: 100 });
+
+    expect(dbMocks.getUserPortfolios).toHaveBeenCalledWith(7, {
+      limit: 25,
+      cursor: 100,
+    });
+  });
+
+  it("rejects portfolio page sizes above the server maximum", async () => {
+    const caller = appRouter.createCaller(createContext("user", 7));
+
+    await expect(caller.portfolio.list({ limit: 101 })).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+    expect(dbMocks.getUserPortfolios).not.toHaveBeenCalled();
+  });
+
+  it("passes bounded ETF search cursor input to the database helper", async () => {
+    dbMocks.listEtfs.mockResolvedValue({ items: [], nextCursor: null });
+    const caller = appRouter.createCaller(createContext("user", 7));
+
+    await caller.etf.list({ query: "world", limit: 10, cursor: 12 });
+
+    expect(dbMocks.listEtfs).toHaveBeenCalledWith({
+      query: "world",
+      limit: 10,
+      cursor: 12,
+    });
+  });
+
   it("passes the authenticated user id into portfolio detail queries", async () => {
     dbMocks.getPortfolioWithHoldings.mockResolvedValue(null);
     const caller = appRouter.createCaller(createContext("user", 7));

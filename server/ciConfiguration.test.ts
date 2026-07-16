@@ -35,6 +35,7 @@ describe("CI workflow contract", () => {
     expect(contents).toContain("pnpm test");
     expect(contents).toContain("pnpm security:secrets");
     expect(contents).toContain("pnpm security:deps");
+    expect(contents).toContain("pnpm deps:unused");
     expect(contents).toContain("node scripts/verify-migrations-and-recovery.mjs");
     expect(contents).toContain("pnpm build");
     expect(contents).not.toContain("secrets.");

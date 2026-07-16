@@ -61,6 +61,9 @@ jobs:
       - name: Audit production dependencies
         run: pnpm security:deps
 
+      - name: Audit unused direct dependencies
+        run: pnpm deps:unused
+
       - name: Wait for isolated TiDB service
         run: node scripts/wait-for-database.mjs
 

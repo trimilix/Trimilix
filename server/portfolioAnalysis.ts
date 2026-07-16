@@ -2,25 +2,32 @@ import {
   calculateHoldingValueCents,
   calculateValueWeightedPortfolioRisk,
 } from "@shared/finance/financialCore";
-import { getEtfBySymbol, getPortfolioWithHoldings } from "./db";
+import { getEtfsBySymbols, getPortfolioWithHoldings } from "./db";
 
 export async function analyzePortfolio(portfolioId: number, userId: number) {
-  const portfolioWithHoldings = await getPortfolioWithHoldings(portfolioId, userId);
+  const portfolioWithHoldings = await getPortfolioWithHoldings(
+    portfolioId,
+    userId
+  );
   if (!portfolioWithHoldings) {
     return null;
   }
 
-  const holdingsWithEtfDetails = await Promise.all(
-    portfolioWithHoldings.holdings.map(async holding => {
-      const etf = await getEtfBySymbol(holding.etfTicker);
-      const value = calculateHoldingValueCents(holding.shares, holding.currentPrice);
-      return { ...holding, etf, value };
-    }),
+  const etfRows = await getEtfsBySymbols(
+    portfolioWithHoldings.holdings.map(holding => holding.etfTicker)
+  );
+  const etfBySymbol = new Map(etfRows.map(etf => [etf.symbol, etf]));
+  const holdingsWithEtfDetails = portfolioWithHoldings.holdings.map(
+    holding => ({
+      ...holding,
+      etf: etfBySymbol.get(holding.etfTicker),
+      value: calculateHoldingValueCents(holding.shares, holding.currentPrice),
+    })
   );
 
   const totalPortfolioValue = holdingsWithEtfDetails.reduce(
     (sum, holding) => sum + holding.value,
-    0,
+    0
   );
 
   const allocationData = holdingsWithEtfDetails.map(holding => ({
@@ -38,27 +45,32 @@ export async function analyzePortfolio(portfolioId: number, userId: number) {
       ticker: holding.etfTicker,
       valueCents: holding.value,
       riskScore: holding.etf?.riskScore,
-    })),
+    }))
   );
 
   const geoValueByRegion = new Map<string, number>();
   for (const holding of holdingsWithEtfDetails) {
     const region = holding.etf?.region;
     if (region) {
-      geoValueByRegion.set(region, (geoValueByRegion.get(region) ?? 0) + holding.value);
+      geoValueByRegion.set(
+        region,
+        (geoValueByRegion.get(region) ?? 0) + holding.value
+      );
     }
   }
 
   const totalGeoValue = Array.from(geoValueByRegion.values()).reduce(
     (sum, value) => sum + value,
-    0,
+    0
   );
   const geographicDistribution = Array.from(geoValueByRegion.entries()).map(
     ([region, value]) => ({
       region,
       percentage:
-        totalGeoValue > 0 ? Number(((value / totalGeoValue) * 100).toFixed(2)) : 0,
-    }),
+        totalGeoValue > 0
+          ? Number(((value / totalGeoValue) * 100).toFixed(2))
+          : 0,
+    })
   );
 
   return {

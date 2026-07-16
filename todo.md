@@ -107,9 +107,9 @@
 - [x] **Database — Herstelbewijs:** Voer een veilige, geïsoleerde restore-/hersteltest uit voor zover het platform dit toelaat en documenteer RPO/RTO, bewijs en resterende platformbeperkingen.
 - [x] **Operational readiness — CI-gate:** Voeg een afgedwongen workflow toe voor typecheck, tests, secret-scan, dependency-audit, build en migratiecontrole.
 - [x] **Operational readiness — Observability:** Implementeer health/readiness, request-ID's, gestructureerde logging, centrale foutregistratiegrenzen en testbare SLI-signalen zonder gevoelige data te loggen.
-- [ ] **Performance — Frontendbundel:** Implementeer route-lazy-loading en een bundlebudget; verwijder aantoonbaar ongebruikte runtime-imports en bewijs de verbetering met buildmetingen.
-- [ ] **Performance — Querypatronen:** Voeg cursor-/limietpaginering en batchqueries toe aan onbegrensde of N+1-gevoelige portfolio-/ETF-flows; voeg tests en querymetingen toe.
-- [ ] **Architectuur — Verouderde runtime:** Verwijder of archiveer het ongebruikte `server/index.ts` en borg één ondubbelzinnig productie-entrypoint.
+- [x] **Performance — Frontendbundel:** Implementeer route-lazy-loading en een bundlebudget; verwijder aantoonbaar ongebruikte runtime-imports en bewijs de verbetering met buildmetingen.
+- [x] **Performance — Querypatronen:** Voeg cursor-/limietpaginering en batchqueries toe aan onbegrensde of N+1-gevoelige portfolio-/ETF-flows; voeg tests en querymetingen toe.
+- [x] **Architectuur — Verouderde runtime:** Verwijder of archiveer het ongebruikte `server/index.ts` en borg één ondubbelzinnig productie-entrypoint.
 - [ ] **Verificatie:** Voer de volledige kwaliteitsketen, securityregressies, productiebuild, runtimechecks en relevante desktop-/mobielcontroles uit en leg bewijs vast.
 - [ ] **Rapportage:** Lever `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md` op met opgeloste P0/P1-punten, testbewijs, securitybewijs, performancebewijs, resterende risico's en een nieuw go/no-go-oordeel.
 - [x] **Architectuur — Rate-limitadapter:** Isoleer de lokale limiterstore achter een expliciete adapter/factory, documenteer Optie A in `ENGINEERING_HANDBOOK.md` en leg harde Redis/edge-migratietriggers vast (meer dan één productie-instance, significante publieke groei, limietmisbruik over instances, strengere compliance/SLA of behoefte aan globale user-/tenantquota).
@@ -135,3 +135,7 @@
 - [x] Voeg centrale Express- en tRPC-foutregistratiegrenzen toe die request-ID correleren, publieke foutdetails beperken en geen gevoelige data loggen.
 - [x] Voeg Vitest-regressies toe voor loggerredactie, request-ID, health/readiness, foutgrenzen en testbare SLI-tellers; documenteer alertdrempels en externe collectorbeperking.
 - [x] Laat de centrale Express-foutgrens fouten met reeds verzonden headers doorgeven aan de standaardhandler in plaats van de responseketen stil te beëindigen; voeg een regressietest toe.
+- [x] Maak alle niet-home routes lazy met een toegankelijke `Suspense`-fallback en bewijs dat chartlibraries niet langer in de initiële routechunk zitten.
+- [x] Voeg een deterministische bundlebudgetscript en CI-/`verify`-gate toe voor initiële en grootste JavaScriptchunks, met gemeten baseline en beperkte onderhoudsmarge.
+- [x] Vervang onbegrensde portfolio-/ETF-lijsten door begrensde cursorpagina’s en vervang portfolioanalyse-N+1 door één batchquery; behoud eigenaarsfiltering en expliciete ontbrekende-risicodata.
+- [x] Verwijder het ongebruikte `server/index.ts`, verifieer dat `server/_core/index.ts` het enige dev-, build- en productie-entrypoint is en borg dit met een statische test.

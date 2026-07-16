@@ -1,15 +1,33 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
-import ETFCheck from "./pages/ETFCheck";
-import PortfolioChecker from "./pages/PortfolioChecker";
-import CompoundingSimulator from "./pages/CompoundingSimulator";
-import GoalPlanner from "./pages/GoalPlanner";
+const ETFCheck = lazy(() => import("./pages/ETFCheck"));
+const PortfolioChecker = lazy(() => import("./pages/PortfolioChecker"));
+const CompoundingSimulator = lazy(() => import("./pages/CompoundingSimulator"));
+const GoalPlanner = lazy(() => import("./pages/GoalPlanner"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+function RouteFallback() {
+  return (
+    <main
+      className="min-h-screen bg-background text-foreground flex items-center justify-center px-6"
+      aria-busy="true"
+    >
+      <div className="flex items-center gap-3" role="status" aria-live="polite">
+        <span
+          className="size-5 rounded-full border-2 border-primary/30 border-t-primary motion-safe:animate-spin"
+          aria-hidden="true"
+        />
+        <span className="text-sm font-medium">Pagina laden…</span>
+      </div>
+    </main>
+  );
+}
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -42,7 +60,9 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <Suspense fallback={<RouteFallback />}>
+            <Router />
+          </Suspense>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, like, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertEtf,
@@ -14,19 +14,19 @@ import {
   subscriptions,
   users,
 } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import { ENV } from "./_core/env";
 
 type AppDatabase = ReturnType<typeof drizzle>;
 type TransactionCallback = Parameters<AppDatabase["transaction"]>[0];
 export type AppTransaction = TransactionCallback extends (
-  transaction: infer TTransaction,
+  transaction: infer TTransaction
 ) => Promise<unknown>
   ? TTransaction
   : never;
 
 export interface TransactionExecutor<TTransaction> {
   transaction<TResult>(
-    operation: (transaction: TTransaction) => Promise<TResult>,
+    operation: (transaction: TTransaction) => Promise<TResult>
   ): Promise<TResult>;
 }
 
@@ -55,13 +55,13 @@ async function requireDb(): Promise<AppDatabase> {
 
 export async function executeInTransaction<TResult, TTransaction>(
   executor: TransactionExecutor<TTransaction>,
-  operation: (transaction: TTransaction) => Promise<TResult>,
+  operation: (transaction: TTransaction) => Promise<TResult>
 ): Promise<TResult> {
   return executor.transaction(operation);
 }
 
 export async function withTransaction<TResult>(
-  operation: (transaction: AppTransaction) => Promise<TResult>,
+  operation: (transaction: AppTransaction) => Promise<TResult>
 ): Promise<TResult> {
   const db = await requireDb();
   return executeInTransaction(db, operation);
@@ -105,8 +105,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -133,12 +133,18 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function rotateUserSessionVersion(openId: string): Promise<boolean> {
+export async function rotateUserSessionVersion(
+  openId: string
+): Promise<boolean> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot revoke sessions: database not available");
@@ -153,14 +159,54 @@ export async function rotateUserSessionVersion(openId: string): Promise<boolean>
   return Number(result[0]?.affectedRows ?? 0) === 1;
 }
 
-// Portfolio queries
-export async function getUserPortfolios(userId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(portfolios).where(eq(portfolios.userId, userId));
+export interface CursorPageOptions {
+  limit: number;
+  cursor?: number;
 }
 
-export async function getPortfolioWithHoldings(portfolioId: number, userId: number) {
+export interface CursorPage<TItem> {
+  items: TItem[];
+  nextCursor: number | null;
+}
+
+const boundedPageLimit = (limit: number) =>
+  Math.min(Math.max(Math.trunc(limit), 1), 100);
+
+// Portfolio queries
+export async function getUserPortfolios(
+  userId: number,
+  options: CursorPageOptions
+): Promise<CursorPage<typeof portfolios.$inferSelect>> {
+  const db = await getDb();
+  if (!db) return { items: [], nextCursor: null };
+
+  const limit = boundedPageLimit(options.limit);
+  const rows = await db
+    .select()
+    .from(portfolios)
+    .where(
+      and(
+        eq(portfolios.userId, userId),
+        options.cursor === undefined
+          ? undefined
+          : gt(portfolios.id, options.cursor)
+      )
+    )
+    .orderBy(asc(portfolios.id))
+    .limit(limit + 1);
+
+  const hasNextPage = rows.length > limit;
+  const items = hasNextPage ? rows.slice(0, limit) : rows;
+  return {
+    items,
+    nextCursor: hasNextPage ? (items.at(-1)?.id ?? null) : null,
+  };
+}
+
+export async function getPortfolioWithHoldings(
+  portfolioId: number,
+  userId: number
+) {
   const db = await getDb();
   if (!db) return null;
 
@@ -180,7 +226,10 @@ export async function getPortfolioWithHoldings(portfolioId: number, userId: numb
   return { ...portfolio[0], holdings: portfolioHoldings };
 }
 
-export async function createPortfolio(userId: number, data: Omit<InsertPortfolio, 'userId'>) {
+export async function createPortfolio(
+  userId: number,
+  data: Omit<InsertPortfolio, "userId">
+) {
   const db = await getDb();
   if (!db) return null;
   const result = await db.insert(portfolios).values({ ...data, userId });
@@ -198,7 +247,11 @@ export async function getUserGoals(userId: number) {
 export async function getUserSubscription(userId: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(subscriptions).where(eq(subscriptions.userId, userId)).limit(1);
+  const result = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
@@ -209,7 +262,7 @@ type SubscriptionMutation = Omit<
 
 export async function upsertSubscription(
   userId: number,
-  data: SubscriptionMutation,
+  data: SubscriptionMutation
 ): Promise<void> {
   const db = await requireDb();
   const updatedAt = new Date();
@@ -228,7 +281,11 @@ export async function getEtfBySymbol(symbol: string) {
     console.warn("[Database] Cannot get ETF: database not available");
     return undefined;
   }
-  const result = await db.select().from(etfs).where(eq(etfs.symbol, symbol)).limit(1);
+  const result = await db
+    .select()
+    .from(etfs)
+    .where(eq(etfs.symbol, symbol))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -242,11 +299,52 @@ export async function createEtf(etf: InsertEtf) {
   return result;
 }
 
-export async function listEtfs() {
+export async function getEtfsBySymbols(symbols: string[]) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get ETF batch: database not available");
+    return [];
+  }
+
+  const uniqueSymbols = Array.from(new Set(symbols));
+  if (uniqueSymbols.length === 0) return [];
+  return db.select().from(etfs).where(inArray(etfs.symbol, uniqueSymbols));
+}
+
+const escapeLikePattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
+
+export async function listEtfs(
+  options: CursorPageOptions & { query?: string }
+): Promise<CursorPage<typeof etfs.$inferSelect>> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot list ETFs: database not available");
-    return [];
+    return { items: [], nextCursor: null };
   }
-  return db.select().from(etfs);
+
+  const limit = boundedPageLimit(options.limit);
+  const normalizedQuery = options.query?.trim();
+  const searchPattern = normalizedQuery
+    ? `%${escapeLikePattern(normalizedQuery)}%`
+    : undefined;
+  const rows = await db
+    .select()
+    .from(etfs)
+    .where(
+      and(
+        options.cursor === undefined ? undefined : gt(etfs.id, options.cursor),
+        searchPattern
+          ? or(like(etfs.symbol, searchPattern), like(etfs.name, searchPattern))
+          : undefined
+      )
+    )
+    .orderBy(asc(etfs.id))
+    .limit(limit + 1);
+
+  const hasNextPage = rows.length > limit;
+  const items = hasNextPage ? rows.slice(0, limit) : rows;
+  return {
+    items,
+    nextCursor: hasNextPage ? (items.at(-1)?.id ?? null) : null,
+  };
 }

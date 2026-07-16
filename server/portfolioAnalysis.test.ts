@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getEtfBySymbol, getPortfolioWithHoldings } from "./db";
+import { getEtfsBySymbols, getPortfolioWithHoldings } from "./db";
 import { analyzePortfolio } from "./portfolioAnalysis";
 
 vi.mock("./db", () => ({
-  getEtfBySymbol: vi.fn(),
+  getEtfsBySymbols: vi.fn(),
   getPortfolioWithHoldings: vi.fn(),
 }));
 
@@ -67,9 +67,10 @@ describe("portfolio analysis integration", () => {
   });
 
   it("uses current position value for the weighted score and distribution", async () => {
-    vi.mocked(getEtfBySymbol).mockImplementation(async symbol =>
-      symbol === "LOW" ? etf("LOW", 1) : etf("HIGH", 5),
-    );
+    vi.mocked(getEtfsBySymbols).mockResolvedValue([
+      etf("LOW", 1),
+      etf("HIGH", 5),
+    ]);
 
     const result = await analyzePortfolio(1, 9);
 
@@ -82,12 +83,12 @@ describe("portfolio analysis integration", () => {
       { category: "Hoog risico", value: 90 },
     ]);
     expect(result?.recommendations).toEqual([]);
+    expect(getEtfsBySymbols).toHaveBeenCalledTimes(1);
+    expect(getEtfsBySymbols).toHaveBeenCalledWith(["LOW", "HIGH"]);
   });
 
   it("blocks the risk result when ETF risk data is unavailable", async () => {
-    vi.mocked(getEtfBySymbol).mockImplementation(async symbol =>
-      symbol === "LOW" ? etf("LOW", 1) : undefined,
-    );
+    vi.mocked(getEtfsBySymbols).mockResolvedValue([etf("LOW", 1)]);
 
     const result = await analyzePortfolio(1, 9);
 
@@ -99,9 +100,10 @@ describe("portfolio analysis integration", () => {
   });
 
   it("blocks invalid ETF scores instead of clipping or defaulting", async () => {
-    vi.mocked(getEtfBySymbol).mockImplementation(async symbol =>
-      symbol === "LOW" ? etf("LOW", 0) : etf("HIGH", 5),
-    );
+    vi.mocked(getEtfsBySymbols).mockResolvedValue([
+      etf("LOW", 0),
+      etf("HIGH", 5),
+    ]);
 
     const result = await analyzePortfolio(1, 9);
 
@@ -114,6 +116,6 @@ describe("portfolio analysis integration", () => {
     vi.mocked(getPortfolioWithHoldings).mockResolvedValue(null);
 
     await expect(analyzePortfolio(404, 9)).resolves.toBeNull();
-    expect(getEtfBySymbol).not.toHaveBeenCalled();
+    expect(getEtfsBySymbols).not.toHaveBeenCalled();
   });
 });
