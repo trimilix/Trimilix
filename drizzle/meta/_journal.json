@@ -43,6 +43,27 @@
       "when": 1784195578058,
       "tag": "0005_nice_retro_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1784196519026,
+      "tag": "0006_funny_madripoor",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1784197166183,
+      "tag": "0007_enforce_tidb_checks",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1784199253570,
+      "tag": "0008_sharp_wolverine",
+      "breakpoints": true
     }
   ]
 }

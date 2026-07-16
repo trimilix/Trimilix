@@ -265,8 +265,58 @@ Bij iedere belangrijke keuze beantwoorden we vijf vragen: welk probleem lossen w
 
 Een afwijking van dit handbook vereist een geregistreerde reden, risico-inschatting, eigenaar en vervaldatum. Kritieke securitygates, eigenaarschapscontrole, secretbescherming en betalingsintegriteit mogen niet stilzwijgend worden overgeslagen. Deze standaard wordt bij iedere belangrijke sprint herzien en alleen aangepast via versiebeheer.
 
-## Referenties
+## 18. Database-integriteit en migratieherstel — ADR-2026-07-16-C
 
+### 18.1 Beslissing en invarianten
+
+Fase A kiest voor database-afgedwongen kerninvarianten, gerichte indexen en atomische writes. Applicatievalidatie blijft bestaan voor bruikbare foutmeldingen, maar vormt niet de laatste verdedigingslaag. De huidige schema-invarianten omvatten negen benoemde CHECK-constraints, een unieke business-key op `(portfolioId, etfTicker)`, query-indexen op portfolio- en gebruikersrelaties, een atomische subscription-upsert en een herbruikbare transactiewrapper.
+
+TiDB behandelt CHECK-enforcement als een globale capability. Runtime- of migratiebewijs is daarom ongeldig wanneer `@@GLOBAL.tidb_enable_check_constraint` niet `1` is, wanneer één van de negen namen ontbreekt of wanneer bestaande data een invariant schendt. In elk van deze gevallen stopt de release of herstelprocedure **fail-closed**; journalrecords mogen nooit worden gebruikt om ontbrekende schema-effecten te verbergen.[4] [5]
+
+### 18.2 Nullable CHECK-contract
+
+De ETF-velden `ter` en `riskScore` blijven nullable, omdat ontbrekende brondata niet als een gefabriceerde financiële waarde mag worden opgeslagen. De toegestane expressies zijn `CHECK (ter >= 0)` en `CHECK (riskScore BETWEEN 1 AND 5)`. Volgens de SQL-/TiDB-semantiek faalt een CHECK alleen bij `FALSE`; `UNKNOWN` door `NULL` blijft geldig. Dit behoudt de businesssemantiek en vermijdt de bij TiDB 8.5 aangetroffen DDL-afwijking voor de expliciete vorm `IS NULL OR ...` op bestaande tabellen.[5]
+
+| Situatie | Verplicht gedrag |
+|---|---|
+| `ter` of `riskScore` is `NULL` | Opslag toegestaan; financiële analyse blijft applicatief fail-closed bij ontbrekende risicodata |
+| `ter < 0` | Database weigert de write |
+| `riskScore` buiten 1–5 | Database weigert de write |
+| CHECK-capability uit of constraintset onvolledig | Migratie-, runtime- of CI-preflight stopt |
+
+### 18.3 Migratiejournal en convergentie
+
+Drizzle berekent per SQL-migratie een SHA-256-hash over de volledige bestandsinhoud en beslist op basis van de grootste `created_at` welke latere migraties nog moeten lopen. Journalreconciliatie is daarom uitsluitend toegestaan na read-only bewijs dat ieder ontbrekend schema-effect exact live aanwezig is en dat het bestaande journal een exacte officiële prefix vormt.[6] [7]
+
+Voor de historische afwijking van `0004`–`0006` is de goedgekeurde procedure uitgevoerd: live equivalentiecontrole, nul dataviolaties, berekening van de officiële lokale hashes, atomische insert van uitsluitend de drie ontbrekende hash-/timestamprecords en verificatie van de volledige prefix. Daarna heeft de officiële migrator `0007` toegepast. `drizzle-kit generate` maakte aansluitend `0008_sharp_wolverine.sql`, omdat de handmatig geconvergeerde ETF-CHECK-DDL nog niet exact overeenkwam met Drizzle’s gegenereerde snapshotvorm. `0008` vervangt uitsluitend dezelfde twee benoemde constraints met de schema-gegenereerde gekwalificeerde expressies; TiDB canoniseert die naar dezelfde geregistreerde clauses. De migratie is behouden omdat zij officieel toegepast en gejournaliseerd is. Een tweede generate-run rapporteerde geen schemawijzigingen.
+
+> Een eenmaal toegepaste en gejournaliseerde migratie wordt niet verwijderd of herschreven. Verdere correcties gebeuren uitsluitend met een nieuwe voorwaartse migratie en een aantoonbaar herstelpad.
+
+### 18.4 Herstelbewijs en operationele gate
+
+`scripts/verify-migrations-and-recovery.mjs` bouwt twee willekeurig benoemde geïsoleerde databases op via de volledige gecommitteerde keten, schrijft representatieve synthetische data, bewijst constraintafwijzingen, nullable ETF-acceptatie, unieke holdings, atomische upsert en transactierollback, exporteert alle zes domeintabellen en vergelijkt na restore rijtotalen en SHA-256-checksums. De rehearsal met migraties `0000`–`0008` is geslaagd; de projectdatabase werd daarbij niet als bron of doeldatabase gebruikt.
+
+De rehearsal bewijst technische reproduceerbaarheid, maar vervangt geen platformback-up of point-in-time recovery. Totdat providerretentie, herstelvenster en productie-restore operationeel zijn bewezen, blijven formele productie-RPO en -RTO **niet vastgesteld**. Voor iedere release met datamigraties zijn minimaal vereist: schema-equivalentie, volledige migratierehearsal, nul integriteitsschendingen, rollback- of voorwaarts herstelplan en een projectcheckpoint.
+
+### 18.5 Verplichte trigger voor generieke idempotency
+
+Een generieke request-level idempotencyoplossing wordt bewust nog niet toegevoegd zolang de huidige writes enkelvoudig, lokaal atomisch en zonder externe retry-/deliverysemantiek zijn. Zij wordt echter verplicht vóór ingebruikname van Stripe-checkout, payment intents, webhooks, brokerorders, geldachtige mutaties, samengestelde kritieke transacties of iedere flow die door clients, queues of providers at-least-once kan worden aangeboden.
+
+| Trigger | Minimale vereiste |
+|---|---|
+| Stripe, betalingen of providerwebhooks | Unieke provider-event-ID plus intern idempotency-keycontract |
+| Geldachtige of samengestelde financiële mutatie | Atomische businesswrite en idempotencyrecord in dezelfde transactie |
+| Client- of queue-retries | Payloadhash; dezelfde key met andere payload wordt geweigerd |
+| Replay/auditbehoefte | Status, resultaatreferentie, created/expiry timestamps en privacybewuste auditmetadata |
+| Retentiebehoefte | Vastgelegde TTL, periodieke cleanup, indexen en capaciteit-/kostenlimiet |
+
+De implementatie vereist een afzonderlijk ADR met keyscope per gebruiker/tenant en operatie, conflictgedrag, in-progress locking, replaycontract, payloadcanonicalisatie, retentie en tests voor gelijktijdige dubbele aanbieding. Zonder deze garanties mag een betaling of geldachtige operatie niet worden vrijgegeven.
+
+## Referenties
 [1]: https://owasp.org/www-project-top-ten/ "OWASP Top 10"
 [2]: https://owasp.org/www-project-application-security-verification-standard/ "OWASP Application Security Verification Standard"
 [3]: https://csrc.nist.gov/Projects/ssdf "NIST Secure Software Development Framework"
+[4]: https://docs.pingcap.com/tidb/stable/system-variables/ "TiDB System Variables"
+[5]: https://docs.pingcap.com/tidb/stable/constraints/ "TiDB Constraints"
+[6]: https://orm.drizzle.team/docs/migrations "Drizzle ORM — Migrations"
+[7]: https://orm.drizzle.team/docs/drizzle-kit-generate "Drizzle Kit — Generate SQL migration files"

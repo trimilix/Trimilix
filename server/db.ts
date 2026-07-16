@@ -1,9 +1,36 @@
 import { and, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, portfolios, holdings, goals, subscriptions, etfs, InsertPortfolio, InsertHolding, InsertGoal, InsertSubscription, InsertEtf } from "../drizzle/schema";
+import {
+  InsertEtf,
+  InsertGoal,
+  InsertHolding,
+  InsertPortfolio,
+  InsertSubscription,
+  InsertUser,
+  etfs,
+  goals,
+  holdings,
+  portfolios,
+  subscriptions,
+  users,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
-let _db: ReturnType<typeof drizzle> | null = null;
+type AppDatabase = ReturnType<typeof drizzle>;
+type TransactionCallback = Parameters<AppDatabase["transaction"]>[0];
+export type AppTransaction = TransactionCallback extends (
+  transaction: infer TTransaction,
+) => Promise<unknown>
+  ? TTransaction
+  : never;
+
+export interface TransactionExecutor<TTransaction> {
+  transaction<TResult>(
+    operation: (transaction: TTransaction) => Promise<TResult>,
+  ): Promise<TResult>;
+}
+
+let _db: AppDatabase | null = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
@@ -16,6 +43,28 @@ export async function getDb() {
     }
   }
   return _db;
+}
+
+async function requireDb(): Promise<AppDatabase> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database is unavailable");
+  }
+  return db;
+}
+
+export async function executeInTransaction<TResult, TTransaction>(
+  executor: TransactionExecutor<TTransaction>,
+  operation: (transaction: TTransaction) => Promise<TResult>,
+): Promise<TResult> {
+  return executor.transaction(operation);
+}
+
+export async function withTransaction<TResult>(
+  operation: (transaction: AppTransaction) => Promise<TResult>,
+): Promise<TResult> {
+  const db = await requireDb();
+  return executeInTransaction(db, operation);
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
@@ -153,15 +202,24 @@ export async function getUserSubscription(userId: number) {
   return result.length > 0 ? result[0] : null;
 }
 
-export async function upsertSubscription(userId: number, data: Partial<InsertSubscription>) {
-  const db = await getDb();
-  if (!db) return;
-  const existing = await getUserSubscription(userId);
-  if (existing) {
-    await db.update(subscriptions).set(data).where(eq(subscriptions.userId, userId));
-  } else {
-    await db.insert(subscriptions).values({ userId, ...data });
-  }
+type SubscriptionMutation = Omit<
+  Partial<InsertSubscription>,
+  "id" | "userId" | "createdAt" | "updatedAt"
+>;
+
+export async function upsertSubscription(
+  userId: number,
+  data: SubscriptionMutation,
+): Promise<void> {
+  const db = await requireDb();
+  const updatedAt = new Date();
+
+  await db
+    .insert(subscriptions)
+    .values({ ...data, userId, updatedAt })
+    .onDuplicateKeyUpdate({
+      set: { ...data, updatedAt },
+    });
 }
 
 export async function getEtfBySymbol(symbol: string) {

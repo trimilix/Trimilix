@@ -60,10 +60,53 @@ OAuth, storage en tRPC hebben eigen policies. `RateLimitStoreFactory` is de infr
 
 De lokale limiter is niet globaal over meerdere autoscaling instances. Een gedeelde Redis- of edge-adapter is verplicht bij structureel meer dan één productie-instance, misbruik over instances, globale user-/tenantquota, strengere SLA/compliance of multi-regionbediening. De primaire productiedatabase mag niet zonder afzonderlijk ADR als limiterstore worden gebruikt.
 
-## 5. Verificatiebewijs in Fase A
+## 5. Database-integriteit en migratieherstel
 
-De gerichte regressies voor sessies, logout, browseropslag en rate limiting staan in `server/sessionSecurity.test.ts`, `server/auth.logout.test.ts`, `client/src/lib/authStorage.test.ts` en `server/rateLimiting.test.ts`. De testconfiguratie omvat zowel `server/**/*.test.ts` als `client/src/**/*.test.ts`. Het definitieve aantal, de volledige buildgate en het productie-go/no-go-oordeel worden na afronding vastgelegd in `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md`.
+### 5.1 Actuele live toestand
 
-## 6. Overdrachtswaarschuwingen
+De projectdatabase heeft `@@GLOBAL.tidb_enable_check_constraint = 1`, negen benoemde CHECK-constraints, vier gerichte indexen en geen aangetroffen integriteitsschendingen voor de afgedwongen domeinregels. De officiële Drizzle-journalprefix bevat migraties `0000`–`0008` met de lokale SHA-256-hashes en timestamps. De ETF-constraints zijn in de TiDB-catalogus gecanoniseerd als `ter >= 0` en `riskScore BETWEEN 1 AND 5`; `NULL` blijft geldig.
+
+| Onderdeel | Status en bewijs |
+|---|---|
+| Migraties `0004`–`0006` | Live schema-equivalentie bewezen; ontbrekende officiële journalrecords atomisch gereconcilieerd |
+| Migratie `0007` | Via de officiële Drizzle-migrator toegepast en gejournaliseerd |
+| Migratie `0008` | Door `drizzle-kit generate` gemaakte snapshotnormalisatie; vervangt uitsluitend dezelfde twee ETF-CHECKs en is live toegepast |
+| Lokale schema-drift | Tweede `drizzle-kit generate` meldt: `No schema changes, nothing to migrate` |
+| Clean-database rehearsal | `0000`–`0008`, negen CHECKs, vier indexen, integriteitsafwijzingen, nullable ETF-acceptatie, atomische upsert en rollback geslaagd |
+| Restorebewijs | Zes tabellen; bron- en restore-rijtotalen en SHA-256-checksums identiek |
+
+### 5.2 Fail-closed runbook
+
+Voer databaseherstel altijd vanuit de projectroot uit. De volgende volgorde is verplicht; ga niet door na een niet-groen rapport.
+
+```bash
+node scripts/verify-live-schema-equivalence.mjs
+node scripts/apply-tidb-check-remediation.mjs
+node scripts/reconcile-drizzle-journal.mjs
+node scripts/reconcile-drizzle-journal.mjs --apply
+pnpm db:push
+node scripts/inspect-live-migration-state.mjs
+node scripts/verify-migrations-and-recovery.mjs
+```
+
+`apply-tidb-check-remediation.mjs` schrijft alleen wanneer de globale capability aanstaat, bestaande data nul schendingen heeft en constraints ontbreken. `reconcile-drizzle-journal.mjs` accepteert alleen een exacte officiële lokale migratieprefix; gedeeltelijke reconciliatie of hash-/timestampafwijking blokkeert de procedure. Na succesvolle reconciliatie is herhaling een read-only no-op. Verwijder of herschrijf nooit een toegepaste/gejournaliseerde migratie.
+
+Wanneer `drizzle-kit generate` onverwacht een migratie maakt, inspecteer de SQL vóór verdere vrijgave, controleer of de officiële migrator haar journaliseerde, herhaal `generate` tot een no-change-resultaat en voer de volledige geïsoleerde rehearsal opnieuw uit. Een semantische no-op blijft behouden wanneer zij al officieel is toegepast; verwijderen zou de keten niet-reproduceerbaar maken.
+
+### 5.3 Hersteldoelen en resterende beperking
+
+De geïsoleerde rehearsal bewijst schema- en datareproduceerbaarheid, niet de beschikbaarheid of retentie van een providerback-up. Formele productie-RPO en -RTO zijn daarom nog **niet vastgesteld**. Vóór een betalende productierelease moeten providerretentie, point-in-time recovery of equivalent, restorebevoegdheden, meetbare hersteltijd en een periodiek herstelritme operationeel worden bewezen.
+
+### 5.4 Idempotency-overdrachtsgrens
+
+De huidige subscriptionwrite gebruikt één atomische upsert en samengestelde writes kunnen de transactiewrapper gebruiken. Er bestaat bewust nog geen generieke idempotencytabel. Die wordt verplicht vóór Stripe-checkout, payments, webhooks, brokerorders, geldachtige mutaties, at-least-once queues of andere kritieke retrybare operaties. De toekomstige oplossing moet keyscope, payloadhash, conflictgedrag, in-progress locking, replayresultaat, TTL/cleanup en gelijktijdigheidstests omvatten; idempotencyrecord en businesswrite moeten waar mogelijk in dezelfde transactie vallen.
+
+## 6. Verificatiebewijs in Fase A
+
+De gerichte regressies voor sessies, logout, browseropslag en rate limiting staan in `server/sessionSecurity.test.ts`, `server/auth.logout.test.ts`, `client/src/lib/authStorage.test.ts` en `server/rateLimiting.test.ts`. Databasebewijs staat in `server/databaseIntegrity.test.ts`, `scripts/verify-live-schema-equivalence.mjs`, `scripts/apply-tidb-check-remediation.mjs`, `scripts/reconcile-drizzle-journal.mjs`, `scripts/inspect-live-migration-state.mjs` en `scripts/verify-migrations-and-recovery.mjs`. De testconfiguratie omvat zowel `server/**/*.test.ts` als `client/src/**/*.test.ts`. Het definitieve aantal, de volledige buildgate en het productie-go/no-go-oordeel worden na afronding vastgelegd in `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md`.
+
+## 7. Overdrachtswaarschuwingen
 
 Geheimen mogen uitsluitend via de projectsecretlaag worden beheerd. Auth- en limiterlogs mogen geen JWT, openID, volledig IP-adres of volledig gebruikersprofiel bevatten. Verleng de sessieduur niet lokaal; iedere wijziging aan levensduur, revocatiemodel, cookiebeleid of tokenclaims vereist een securityreview, regressietests en een bijgewerkt ADR. Een toekomstige apparaat-sessieimplementatie mag geen ruwe JWT’s opslaan.
+
+Beschouw de TiDB-CHECK-capability, de volledige benoemde constraintset en het officiële migratiejournal als één gezamenlijke release-invariant. Pas nooit losse journalrecords toe zonder bewezen schema-equivalentie. Gebruik nooit echte klantdata in de geïsoleerde rehearsal. Voer geen generieke idempotencyoplossing ad hoc in een router in; activeer de in het Engineering Handbook vastgelegde architectuurtrigger en leg eerst het volledige replay- en retentiecontract vast.
