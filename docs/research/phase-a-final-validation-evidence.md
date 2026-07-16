@@ -7,17 +7,17 @@
 
 Na de tijdens de visuele smoke gevonden Portfolio Checker-authgrensfix is `pnpm verify` volledig opnieuw uitgevoerd. De gate eindigde groen.
 
-| Gate | Resultaat |
-|---|---:|
-| TypeScript | Geslaagd, nul typefouten |
-| Vitest | 15 testbestanden, 96 tests geslaagd |
-| Secret-scan | Nul high-confidence hardcoded secrets |
-| OSV-productieaudit | 466 geïnstalleerde productiepackageversies gecontroleerd, nul blokkerende bevindingen |
-| Ongebruikte directe dependencies | 81 directe packages gecontroleerd, nul ongebruikte packages |
-| Productiebuild | Geslaagd; 2.399 modules getransformeerd |
-| Initiële JavaScriptgrafiek | 647.652 raw bytes; 192.020 gzip bytes |
-| Grootste async JavaScriptchunk | 398.561 raw bytes; 110.857 gzip bytes |
-| Bundlebudget | Geslaagd; nul overtredingen; vijf dynamische routes |
+| Gate                             |                                                                             Resultaat |
+| -------------------------------- | ------------------------------------------------------------------------------------: |
+| TypeScript                       |                                                              Geslaagd, nul typefouten |
+| Vitest                           |                                                   15 testbestanden, 98 tests geslaagd |
+| Secret-scan                      |                                                 Nul high-confidence hardcoded secrets |
+| OSV-productieaudit               | 466 geïnstalleerde productiepackageversies gecontroleerd, nul blokkerende bevindingen |
+| Ongebruikte directe dependencies |                           81 directe packages gecontroleerd, nul ongebruikte packages |
+| Productiebuild                   |                                               Geslaagd; 2.399 modules getransformeerd |
+| Initiële JavaScriptgrafiek       |                                                 647.652 raw bytes; 192.007 gzip bytes |
+| Grootste async JavaScriptchunk   |                                                 398.561 raw bytes; 110.857 gzip bytes |
+| Bundlebudget                     |                                   Geslaagd; nul overtredingen; vijf dynamische routes |
 
 ## Migratie- en live databasebewijs
 
@@ -31,19 +31,19 @@ De afzonderlijke read-only journalcontrole bevestigde negen officiële hash-/tim
 
 De rehearsal draaide tegen geïsoleerde TiDB-databases en raakte geen productiegegevens. Alle negen migraties zijn vanaf een lege database toegepast.
 
-| Bewijs | Resultaat |
-|---|---:|
-| Verwachte tabellen | 6/6 aanwezig |
-| Benoemde CHECK-constraints | 9/9 aanwezig |
-| Vereiste indexen | 4/4 aanwezig |
-| Ongeldige holding geweigerd | Ja |
-| Dubbele holding geweigerd | Ja |
-| Nullable ETF-data geaccepteerd | Ja |
-| Negatieve TER geweigerd | Ja |
-| Ongeldige risicoscore geweigerd | Ja |
-| Atomische holding-upsert | Geslaagd |
-| Transactierollback | Geslaagd |
-| Restorechecksums | 6/6 tabellen exact gelijk |
+| Bewijs                          |                 Resultaat |
+| ------------------------------- | ------------------------: |
+| Verwachte tabellen              |              6/6 aanwezig |
+| Benoemde CHECK-constraints      |              9/9 aanwezig |
+| Vereiste indexen                |              4/4 aanwezig |
+| Ongeldige holding geweigerd     |                        Ja |
+| Dubbele holding geweigerd       |                        Ja |
+| Nullable ETF-data geaccepteerd  |                        Ja |
+| Negatieve TER geweigerd         |                        Ja |
+| Ongeldige risicoscore geweigerd |                        Ja |
+| Atomische holding-upsert        |                  Geslaagd |
+| Transactierollback              |                  Geslaagd |
+| Restorechecksums                | 6/6 tabellen exact gelijk |
 
 De herstelde tabellen `users`, `etfs`, `portfolios`, `holdings`, `goals` en `subscriptions` hadden na restore dezelfde rijaantallen en SHA-256-checksums als de bron.
 
@@ -53,10 +53,10 @@ Na een schone serverstart rapporteerde de database-startupgate eerst een groene 
 
 De lokale baseline is bewust begrensd en is **geen productiecapaciteitstest**.
 
-| Route | Requests | Concurrency | Succes | p50 | p95 | p99 | Budget |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| `/healthz` | 200 | 20 | 100% | 12,68 ms | 22,87 ms | 24,65 ms | 100% succes; p95 < 100 ms |
-| `/readyz` | 80 | 8 | 100% | 6,28 ms | 295,76 ms | 323,27 ms | 100% succes; p95 < 750 ms |
+| Route      | Requests | Concurrency | Succes |      p50 |       p95 |       p99 |                    Budget |
+| ---------- | -------: | ----------: | -----: | -------: | --------: | --------: | ------------------------: |
+| `/healthz` |      200 |          20 |   100% | 12,68 ms |  22,87 ms |  24,65 ms | 100% succes; p95 < 100 ms |
+| `/readyz`  |       80 |           8 |   100% |  6,28 ms | 295,76 ms | 323,27 ms | 100% succes; p95 < 750 ms |
 
 ## Visuele regressie
 

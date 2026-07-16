@@ -69,6 +69,47 @@ describe("performance and build architecture", () => {
     );
   });
 
+  it("renders Portfolio Checker analysis only from tRPC-backed portfolio data", () => {
+    const portfolioSource = readProjectFile(
+      "client/src/pages/PortfolioChecker.tsx"
+    );
+
+    expect(portfolioSource).toContain("trpc.portfolio.get.useQuery");
+    expect(portfolioSource).toContain("trpc.portfolio.analyze.useQuery");
+    expect(portfolioSource).toContain("portfolioAnalysis?.riskProfile");
+    expect(portfolioSource).toContain(
+      "portfolioAnalysis?.geographicDistribution"
+    );
+    expect(portfolioSource).toContain("selectedPortfolio.holdings.map");
+    expect(portfolioSource).toContain('riskStatus === "complete"');
+    expect(portfolioSource).not.toMatch(/const\s+riskData\s*=\s*\[/);
+    expect(portfolioSource).not.toMatch(/const\s+geoData\s*=\s*\[/);
+    expect(portfolioSource).not.toContain("mockRisk");
+    expect(portfolioSource).not.toContain("mockRecommendation");
+  });
+
+  it("wires the Compounding Simulator to the guarded shared financial core", () => {
+    const simulatorSource = readProjectFile(
+      "client/src/pages/CompoundingSimulator.tsx"
+    );
+
+    expect(simulatorSource).toContain('from "@shared/finance/financialCore"');
+    expect(simulatorSource).toContain("calculateCompoundingProjection({");
+    expect(simulatorSource).toContain("eurosToCentsHalfUp(initialAmount)");
+    expect(simulatorSource).toContain(
+      "percentageToBasisPointsHalfUp(annualReturn)"
+    );
+    expect(simulatorSource).toContain("try {");
+    expect(simulatorSource).toContain("Berekening niet beschikbaar");
+    expect(simulatorSource).toContain('role="alert"');
+    expect(simulatorSource).toContain("min={1_000}");
+    expect(simulatorSource).toContain("max={100_000}");
+    expect(simulatorSource).toContain("min={0}");
+    expect(simulatorSource).toContain("max={15}");
+    expect(simulatorSource).toContain("max={50}");
+    expect(simulatorSource).not.toContain("Math.pow");
+  });
+
   it("uses only the canonical full-stack server entrypoint", () => {
     const packageJson = JSON.parse(readProjectFile("package.json")) as {
       scripts: Record<string, string>;

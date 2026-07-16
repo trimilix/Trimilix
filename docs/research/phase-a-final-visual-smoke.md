@@ -25,3 +25,7 @@ De ETF Checker verlaat de `Suspense`-fallback en toont de volledige route op 390
 De eerste ongeauthenticeerde capture toonde ten onrechte de portefeuille-empty-state doordat de query correct was uitgeschakeld maar de authloading/-grens niet vóór de datatoestand werd gerenderd. Dit is hersteld met een expliciete login-grens. De vertraagde recapture toont op 390×844 uitsluitend “Inloggen vereist”, een duidelijke toelichting en een user-triggered “Inloggen of registreren”-actie; er lekt geen beschermde portefeuille-inhoud en er is geen horizontale overflow.
 
 Na de fix retourneerden `/healthz` en warme `/readyz` opnieuw HTTP 200 met respectievelijk `{"status":"ok"}` en `{"status":"ready","checks":{"database":"up"}}`; beide responses bevatten een unieke `x-request-id`.
+
+## Definitieve Compounding Simulator-smoke na frontendbewijsfix
+
+Op 16 juli 2026 is `/compounding-simulator` opnieuw geladen tegen de schone eindruntime. De standaardscenario-uitvoer rendert volledig: instellingen, grafiek, totale inleg (€ 190.000), berekende groei (€ 501.150), eindvermogen (€ 691.150) en beide aannamesblokken zijn zichtbaar, leesbaar en zonder horizontale overflow of contrastfout. De nieuwe fail-safe berekeningsfoutgrens verandert de normale formule-uitkomst niet en wordt alleen gebruikt wanneer de gedeelde financiële kern een onveilige invoer of output weigert. Bewijsscreenshot: `/home/ubuntu/screenshots/3000-i68duzr3aln9zdk_2026-07-16_12-22-55_5706.webp`.
