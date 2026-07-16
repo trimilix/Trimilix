@@ -1,7 +1,7 @@
 # Trimilix Technical Handover
 
 **Eigenaar:** Manus AI  
-**Status:** Fase A-stabilisatie in uitvoering  
+**Status:** Fase A technisch afgerond binnen repositoryscope; gecontroleerde vervolgbouw toegestaan, brede betalende productie conditioneel geblokkeerd  
 **Laatste update:** 16 juli 2026
 
 ## 1. Doel
@@ -133,10 +133,14 @@ Dit is een build- en queryarchitectuurbaseline, geen productie-loadtest. p95/p99
 
 ## 7. Verificatiebewijs in Fase A
 
-De gerichte regressies voor sessies, logout, browseropslag en rate limiting staan in `server/sessionSecurity.test.ts`, `server/auth.logout.test.ts`, `client/src/lib/authStorage.test.ts` en `server/rateLimiting.test.ts`. Performance- en buildarchitectuurbewijs staat in `server/performanceArchitecture.test.ts`, `server/portfolioAnalysis.test.ts`, `server/authorization.test.ts` en `scripts/check-bundle-budget.mjs`. Observabilitybewijs staat in `server/observability.test.ts`, `server/_core/logger.ts`, `server/_core/observability.ts` en `.github/workflows/ci.yml`. Databasebewijs staat in `server/databaseIntegrity.test.ts`, `scripts/verify-live-schema-equivalence.mjs`, `scripts/apply-tidb-check-remediation.mjs`, `scripts/reconcile-drizzle-journal.mjs`, `scripts/inspect-live-migration-state.mjs` en `scripts/verify-migrations-and-recovery.mjs`. De testconfiguratie omvat zowel `server/**/*.test.ts` als `client/src/**/*.test.ts`. Het definitieve aantal, de volledige buildgate en het productie-go/no-go-oordeel worden na afronding vastgelegd in `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md`.
+De finale releasegate is na de laatste Portfolio Checker-authgrensfix volledig herhaald en eindigde groen met 15 testbestanden en 96 tests, nul TypeScript-fouten, nul high-confidence secrets, nul blokkerende OSV-bevindingen over 466 geïnstalleerde productiepackageversies, nul ongebruikte directe packages van 81 gecontroleerde packages en een geslaagde productiebuild met vijf dynamische routes binnen alle bundlebudgetten. De officiële migrator is geconvergeerd op `0000`–`0008`; de geïsoleerde clean-database-, rollback- en checksumrestore-rehearsal is groen; de finale live schema- en journalcontroles zijn read-only groen. De volledige bewijs- en beslismatrix staat in [`PHASE_A_STABILIZATION_AUDIT_2026-07-16.md`](PHASE_A_STABILIZATION_AUDIT_2026-07-16.md) en de ruwe samenvatting in [`docs/research/phase-a-final-validation-evidence.md`](docs/research/phase-a-final-validation-evidence.md).
 
 ## 8. Overdrachtswaarschuwingen
 
 Geheimen mogen uitsluitend via de projectsecretlaag worden beheerd. Auth- en limiterlogs mogen geen JWT, openID, volledig IP-adres of volledig gebruikersprofiel bevatten. Verleng de sessieduur niet lokaal; iedere wijziging aan levensduur, revocatiemodel, cookiebeleid of tokenclaims vereist een securityreview, regressietests en een bijgewerkt ADR. Een toekomstige apparaat-sessieimplementatie mag geen ruwe JWT’s opslaan.
 
 Beschouw de TiDB-CHECK-capability, de volledige benoemde constraintset en het officiële migratiejournal als één gezamenlijke release-invariant. Pas nooit losse journalrecords toe zonder bewezen schema-equivalentie. Gebruik nooit echte klantdata in de geïsoleerde rehearsal. Voer geen generieke idempotencyoplossing ad hoc in een router in; activeer de in het Engineering Handbook vastgelegde architectuurtrigger en leg eerst het volledige replay- en retentiecontract vast.
+
+## 9. Formeel Fase A-besluit
+
+De repositorygebonden P0/P1-stabilisatie is afgerond en gecontroleerde vervolgbouw in development en staging is toegestaan onder de bestaande `verify`- en CI-gates. Een brede betalende productierelease blijft conditioneel geblokkeerd totdat centrale monitoring/alerts, branch protection, providerback-upretentie met meetbare RPO/RTO en productieachtige load-/cold-start-/Web Vitals-metingen operationeel zijn bewezen. Betalingen en real-time premiumdata vereisen daarnaast een afzonderlijke security-, idempotency-, licentie- en herstelgate.
