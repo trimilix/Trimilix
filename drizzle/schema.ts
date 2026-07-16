@@ -107,7 +107,8 @@ export const etfs = mysqlTable("etfs", {
   currency: varchar("currency", { length: 3 }).notNull(),
   assetClass: varchar("assetClass", { length: 50 }),
   region: varchar("region", { length: 50 }),
-  riskScore: int("riskScore").default(3).notNull(), // Added riskScore with default 3 (medium)
+  /** Optional 1–5 Trimilix educational indicator; null means analysis is incomplete. */
+  riskScore: int("riskScore"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

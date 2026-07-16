@@ -1,0 +1,1 @@
+ALTER TABLE `etfs` MODIFY COLUMN `riskScore` int;

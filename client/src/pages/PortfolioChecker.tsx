@@ -19,7 +19,9 @@ export default function PortfolioChecker() {
 
   const riskData = portfolioAnalysis?.riskProfile || [];
   const geoData = portfolioAnalysis?.geographicDistribution || [];
-  const recommendations = portfolioAnalysis?.recommendations || [];
+  const riskStatus = portfolioAnalysis?.riskStatus;
+  const missingRiskTickers = portfolioAnalysis?.missingRiskTickers || [];
+  const invalidRiskTickers = portfolioAnalysis?.invalidRiskTickers || [];
 
   if (isLoadingPortfolios) {
     return (
@@ -146,15 +148,28 @@ export default function PortfolioChecker() {
                       <CardTitle className="text-lg">Risicoprofiel</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ResponsiveContainer width="100%" height={250}>
-                        <BarChart data={riskData.map(r => ({ ...r, value: r.value }))}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="category" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#3b82f6" />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      {riskStatus === "complete" ? (
+                        <>
+                          <div className="mb-3 text-sm text-slate-700">
+                            Waardegewogen indicator: <strong>{portfolioAnalysis?.weightedRiskScore}/5</strong>
+                          </div>
+                          <ResponsiveContainer width="100%" height={220}>
+                            <BarChart data={riskData}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="category" />
+                              <YAxis domain={[0, 100]} unit="%" />
+                              <Tooltip formatter={value => `${value}% van portefeuillewaarde`} />
+                              <Bar dataKey="value" fill="#3b82f6" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </>
+                      ) : (
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                          {riskStatus === "empty"
+                            ? "Er is nog geen positieve portefeuillewaarde om te analyseren."
+                            : "De risicoscore is geblokkeerd totdat alle ETF-risicodata aanwezig en geldig is."}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -237,37 +252,43 @@ export default function PortfolioChecker() {
                             <CardTitle className="text-lg">Gezondheidscheck</CardTitle>
                           </CardHeader>
                           <CardContent className="space-y-3">
-                            {/* Dynamically render health checks based on portfolioAnalysis */}
-                            {/* For now, using mock data from backend analyzePortfolio function */}
-                            <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                              <div>
-                                <div className="font-semibold text-green-900 text-sm">Goed gediversificeerd</div>
-                                <p className="text-xs text-green-800 mt-1">Je portefeuille is goed verspreid over regio\"s en ETF\"s.</p>
+                            {riskStatus === "complete" ? (
+                              <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <div className="font-semibold text-green-900 text-sm">Risicodata compleet</div>
+                                  <p className="text-xs text-green-800 mt-1">
+                                    De Trimilix-indicator is waardegewogen berekend over alle posities met positieve waarde.
+                                  </p>
+                                </div>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <div className="font-semibold text-amber-900 text-sm">Analyse onvolledig</div>
+                                  <p className="text-xs text-amber-800 mt-1">
+                                    {riskStatus === "empty"
+                                      ? "Voeg eerst een positie met positieve waarde toe."
+                                      : `Ontbrekend: ${missingRiskTickers.join(", ") || "geen"}. Ongeldig: ${invalidRiskTickers.join(", ") || "geen"}.`}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </CardContent>
                         </Card>
 
-                        {/* Recommendations */}
                         <Card>
                           <CardHeader>
-                            <CardTitle className="text-lg">Aanbevelingen</CardTitle>
+                            <CardTitle className="text-lg">Methodiek</CardTitle>
                           </CardHeader>
-                          <CardContent className="space-y-3">
-                            {recommendations.length > 0 ? (
-                              recommendations.map((rec, index) => (
-                                <div key={index} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                  <p className="text-sm text-blue-900">
-                                    <strong>{rec.split(":")[0]}:</strong> {rec.split(":")[1]}
-                                  </p>
-                                </div>
-                              ))
-                            ) : (
-                              <div className="text-center text-slate-500 py-4">
-                                Geen aanbevelingen op dit moment.
-                              </div>
-                            )}
+                          <CardContent>
+                            <p className="text-sm text-slate-700">
+                              De risicoweergave is een educatieve Trimilix-indicator op schaal 1–5,
+                              gewogen op actuele positieomvang. Ontbrekende of ongeldige data wordt
+                              niet vervangen door een standaardscore en blokkeert daarom de uitkomst.
+                              Dit is geen persoonlijk beleggingsadvies.
+                            </p>
                           </CardContent>
                         </Card>
                       </>
