@@ -157,3 +157,7 @@
 - [x] Herstel de afgeschermde Portfolio Checker-route zodat een niet-ingelogde gebruiker geen misleidende lege portefeuilletoestand ziet maar een expliciete, responsieve authenticatiegrens; behoud backendautorisatie en voeg regressiebewijs toe.
 - [x] Borg statisch dat Portfolio Checker-risico en geografische analyse uit `portfolioAnalysis` komen, allocatie/holdings uit tRPC-data komen en geen mock-/hardcoded analysedatasets aanwezig zijn.
 - [x] Borg de Compounding Simulator end-to-end op de gedeelde financiële kern, begrensde invoer en een zichtbare fail-safe fouttoestand; voeg gerichte regressietests toe.
+- [x] Maak de actuele Trimilix-runtime tijdelijk publiek bereikbaar met een browser-testbare preview-URL.
+- [x] Beoordeel de huidige homepage op Trimilix-merkidentiteit, kernpropositie, productspecifieke navigatie en afwezigheid van generieke bedrijfswebsitecopy; beoordeling geslaagd op browserweergave én broncode.
+- [x] Vervang de homepage alleen indien de beoordeling faalt; niet uitgevoerd omdat de bestaande homepage aantoonbaar al de echte Trimilix-authgrens en financiële cockpit is en geen generieke bedrijfswebsite.
+- [x] Valideer de uiteindelijke homepage en kernroutes op desktop en mobiel; 98 tests, typecheck, security-/dependency-audits, productiebuild, bundlebudgetten en runtime-smokes zijn groen en de tijdelijke demo-URL is gereed.
