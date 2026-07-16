@@ -54,6 +54,21 @@ describe("performance and build architecture", () => {
     expect(analysisSource).not.toContain("Promise.all");
   });
 
+  it("shows an explicit Portfolio Checker authentication boundary before empty data states", () => {
+    const portfolioSource = readProjectFile(
+      "client/src/pages/PortfolioChecker.tsx"
+    );
+
+    expect(portfolioSource).toContain("enabled: isAuthenticated");
+    expect(portfolioSource).toContain("loading: isLoadingAuth");
+    expect(portfolioSource).toContain("if (!isAuthenticated)");
+    expect(portfolioSource).toContain("Inloggen vereist");
+    expect(portfolioSource).toContain("onClick={() => startLogin()}");
+    expect(portfolioSource.indexOf("if (!isAuthenticated)")).toBeLessThan(
+      portfolioSource.indexOf("Geen portefeuilles gevonden")
+    );
+  });
+
   it("uses only the canonical full-stack server entrypoint", () => {
     const packageJson = JSON.parse(readProjectFile("package.json")) as {
       scripts: Record<string, string>;

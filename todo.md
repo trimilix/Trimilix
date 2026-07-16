@@ -110,7 +110,7 @@
 - [x] **Performance — Frontendbundel:** Implementeer route-lazy-loading en een bundlebudget; verwijder aantoonbaar ongebruikte runtime-imports en bewijs de verbetering met buildmetingen.
 - [x] **Performance — Querypatronen:** Voeg cursor-/limietpaginering en batchqueries toe aan onbegrensde of N+1-gevoelige portfolio-/ETF-flows; voeg tests en querymetingen toe.
 - [x] **Architectuur — Verouderde runtime:** Verwijder of archiveer het ongebruikte `server/index.ts` en borg één ondubbelzinnig productie-entrypoint.
-- [ ] **Verificatie:** Voer de volledige kwaliteitsketen, securityregressies, productiebuild, runtimechecks en relevante desktop-/mobielcontroles uit en leg bewijs vast.
+- [x] **Verificatie:** Voer de volledige kwaliteitsketen, securityregressies, productiebuild, runtimechecks en relevante desktop-/mobielcontroles uit en leg bewijs vast.
 - [ ] **Rapportage:** Lever `PHASE_A_STABILIZATION_AUDIT_2026-07-16.md` op met opgeloste P0/P1-punten, testbewijs, securitybewijs, performancebewijs, resterende risico's en een nieuw go/no-go-oordeel.
 - [x] **Architectuur — Rate-limitadapter:** Isoleer de lokale limiterstore achter een expliciete adapter/factory, documenteer Optie A in `ENGINEERING_HANDBOOK.md` en leg harde Redis/edge-migratietriggers vast (meer dan één productie-instance, significante publieke groei, limietmisbruik over instances, strengere compliance/SLA of behoefte aan globale user-/tenantquota).
 - [x] **Architectuur — Sessierevocatieadapter:** Implementeer een expliciet sessierevocatiecontract met user-level `sessionVersion`, zodat 7-daagse JWT-validatie nu werkt en later een apparaatgebonden sessierepository kan worden aangesloten zonder routers of authenticatiegrenzen te herschrijven.
@@ -139,3 +139,9 @@
 - [x] Voeg een deterministische bundlebudgetscript en CI-/`verify`-gate toe voor initiële en grootste JavaScriptchunks, met gemeten baseline en beperkte onderhoudsmarge.
 - [x] Vervang onbegrensde portfolio-/ETF-lijsten door begrensde cursorpagina’s en vervang portfolioanalyse-N+1 door één batchquery; behoud eigenaarsfiltering en expliciete ontbrekende-risicodata.
 - [x] Verwijder het ongebruikte `server/index.ts`, verifieer dat `server/_core/index.ts` het enige dev-, build- en productie-entrypoint is en borg dit met een statische test.
+- [x] Voer `pnpm verify` als één samengestelde finale releasegate uit en archiveer aantallen, auditresultaten en bundlemetingen voor de eindaudit.
+- [x] Herhaal de officiële migratorconvergentie, geïsoleerde clean-database/rollback/restore-rehearsal en finale read-only live schema-/journal-equivalentie op de 0000–0008-keten.
+- [x] Voer schone runtime-smokes uit voor startupintegriteit, `/healthz`, warme `/readyz`, request-ID, foutvrije logs en privacyveilige observabilityevents.
+- [x] Voeg een begrensde lokale loadbaseline toe voor dependencyvrije liveness en database-readiness, meet succesratio/p50/p95/p99 en documenteer dat dit geen productiecapaciteitstest vervangt.
+- [x] Controleer home, ETF Checker en afgeschermde portfolioroute op desktop en mobiel na lazy-loading/cursorrefactor; leg eventuele authenticatiebeperkingen expliciet vast.
+- [x] Herstel de afgeschermde Portfolio Checker-route zodat een niet-ingelogde gebruiker geen misleidende lege portefeuilletoestand ziet maar een expliciete, responsieve authenticatiegrens; behoud backendautorisatie en voeg regressiebewijs toe.

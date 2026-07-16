@@ -23,6 +23,7 @@ import {
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { startLogin } from "@/const";
 
 const COLORS = [
   "#3b82f6",
@@ -34,7 +35,11 @@ const COLORS = [
 ];
 
 export default function PortfolioChecker() {
-  const { isAuthenticated } = useAuth();
+  const {
+    isAuthenticated,
+    loading: isLoadingAuth,
+    error: authError,
+  } = useAuth();
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | null>(
     null
   );
@@ -81,6 +86,44 @@ export default function PortfolioChecker() {
   const riskStatus = portfolioAnalysis?.riskStatus;
   const missingRiskTickers = portfolioAnalysis?.missingRiskTickers || [];
   const invalidRiskTickers = portfolioAnalysis?.invalidRiskTickers || [];
+
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-8 h-8" />
+        <p className="ml-2">Sessie controleren...</p>
+      </div>
+    );
+  }
+
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-600">
+        <AlertCircle className="w-6 h-6 mr-2" />
+        Sessie kon niet worden gecontroleerd. Probeer het opnieuw.
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 px-4 py-8 flex items-center justify-center">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle>Inloggen vereist</CardTitle>
+            <CardDescription>
+              Log in om je portefeuilles veilig te bekijken en analyseren.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button type="button" onClick={() => startLogin()}>
+              Inloggen of registreren
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoadingPortfolios) {
     return (
