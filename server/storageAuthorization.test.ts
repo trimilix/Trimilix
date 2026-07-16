@@ -54,6 +54,11 @@ function successfulStorageFetch() {
   ) as unknown as typeof fetch;
 }
 
+const testForgeConfig = {
+  forgeApiUrl: "https://forge.example.test/",
+  forgeApiKey: ["not", "a", "credential"].join("-"),
+};
+
 describe("storage key policy", () => {
   it("keeps only the active legacy branding assets public", () => {
     expect(classifyStorageKey("trimilix-favicon_f1ead857.svg").kind).toBe("public");
@@ -85,7 +90,11 @@ describe("storage proxy authorization", () => {
   it("serves allowlisted public assets without authenticating", async () => {
     const fetchImpl = successfulStorageFetch();
     const authenticate = vi.fn();
-    const handler = createStorageProxyHandler({ fetchImpl, authenticate });
+    const handler = createStorageProxyHandler({
+      ...testForgeConfig,
+      fetchImpl,
+      authenticate,
+    });
     const { response, state } = responseRecorder();
 
     await handler(requestFor("trimilix-favicon_f1ead857.svg"), response);
@@ -96,9 +105,26 @@ describe("storage proxy authorization", () => {
     expect(state.headers["Cache-Control"]).toContain("public");
   });
 
+  it("fails closed when storage backend configuration is missing", async () => {
+    const fetchImpl = successfulStorageFetch();
+    const handler = createStorageProxyHandler({
+      fetchImpl,
+      forgeApiUrl: undefined,
+      forgeApiKey: undefined,
+    });
+    const { response, state } = responseRecorder();
+
+    await handler(requestFor("trimilix-favicon_f1ead857.svg"), response);
+
+    expect(state.statusCode).toBe(503);
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(state.redirect).toBeUndefined();
+  });
+
   it("requires authentication for a private object", async () => {
     const fetchImpl = successfulStorageFetch();
     const handler = createStorageProxyHandler({
+      ...testForgeConfig,
       fetchImpl,
       authenticate: vi.fn().mockRejectedValue(new Error("missing session")),
     });
@@ -114,6 +140,7 @@ describe("storage proxy authorization", () => {
   it("allows an authenticated owner to access their private object", async () => {
     const fetchImpl = successfulStorageFetch();
     const handler = createStorageProxyHandler({
+      ...testForgeConfig,
       fetchImpl,
       authenticate: vi.fn().mockResolvedValue({ openId: "user-a" }),
     });
@@ -130,6 +157,7 @@ describe("storage proxy authorization", () => {
   it("conceals private objects from a different authenticated user", async () => {
     const fetchImpl = successfulStorageFetch();
     const handler = createStorageProxyHandler({
+      ...testForgeConfig,
       fetchImpl,
       authenticate: vi.fn().mockResolvedValue({ openId: "user-b" }),
     });
@@ -144,7 +172,11 @@ describe("storage proxy authorization", () => {
   it("does not forward unknown object namespaces to the storage backend", async () => {
     const fetchImpl = successfulStorageFetch();
     const authenticate = vi.fn();
-    const handler = createStorageProxyHandler({ fetchImpl, authenticate });
+    const handler = createStorageProxyHandler({
+      ...testForgeConfig,
+      fetchImpl,
+      authenticate,
+    });
     const { response, state } = responseRecorder();
 
     await handler(requestFor("unmanaged/customer-export.csv"), response);
@@ -161,7 +193,7 @@ describe("storage proxy authorization", () => {
         headers: { "Content-Type": "application/json" },
       }),
     ) as unknown as typeof fetch;
-    const handler = createStorageProxyHandler({ fetchImpl });
+    const handler = createStorageProxyHandler({ ...testForgeConfig, fetchImpl });
     const { response, state } = responseRecorder();
 
     await handler(requestFor("trimilix-favicon_f1ead857.svg"), response);

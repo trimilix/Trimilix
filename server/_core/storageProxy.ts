@@ -12,11 +12,15 @@ type StorageUser = { openId: string };
 export type StorageProxyDependencies = {
   authenticate: (req: Request) => Promise<StorageUser>;
   fetchImpl: typeof fetch;
+  forgeApiUrl: string | undefined;
+  forgeApiKey: string | undefined;
 };
 
 const defaultDependencies: StorageProxyDependencies = {
   authenticate: req => getSdk().authenticateRequest(req),
   fetchImpl: fetch,
+  forgeApiUrl: ENV.forgeApiUrl,
+  forgeApiKey: ENV.forgeApiKey,
 };
 
 function sendDenied(res: Response): void {
@@ -74,7 +78,7 @@ export function createStorageProxyHandler(
 
     if (access.kind === "denied") return;
 
-    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
+    if (!dependencies.forgeApiUrl || !dependencies.forgeApiKey) {
       res.status(503).send("Storage temporarily unavailable");
       return;
     }
@@ -82,12 +86,12 @@ export function createStorageProxyHandler(
     try {
       const forgeUrl = new URL(
         "v1/storage/presign/get",
-        ENV.forgeApiUrl.replace(/\/+$/, "") + "/",
+        dependencies.forgeApiUrl.replace(/\/+$/, "") + "/",
       );
       forgeUrl.searchParams.set("path", access.key);
 
       const forgeResponse = await dependencies.fetchImpl(forgeUrl, {
-        headers: { Authorization: `Bearer ${ENV.forgeApiKey}` },
+        headers: { Authorization: `Bearer ${dependencies.forgeApiKey}` },
       });
 
       if (!forgeResponse.ok) {
