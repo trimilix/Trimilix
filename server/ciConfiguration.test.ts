@@ -34,6 +34,8 @@ describe("CI workflow contract", () => {
     expect(contents).toContain("node-version: \"22.13.0\"");
     expect(packageJson.packageManager).toMatch(/^pnpm@10\.4\.1\+/);
     expect(contents).not.toMatch(/^\s+version:\s+10\.4\.1\s*$/m);
+    expect(contents).toContain('JWT_SECRET=$(openssl rand -hex 32)');
+    expect(contents).toContain('>> "$GITHUB_ENV"');
     expect(contents).toContain("pnpm install --frozen-lockfile");
     expect(contents).toContain("pnpm check");
     expect(contents).toContain("pnpm test");

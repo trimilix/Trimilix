@@ -45,6 +45,10 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
+      - name: Create ephemeral CI session key
+        shell: bash
+        run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
 
